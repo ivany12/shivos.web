@@ -109,6 +109,8 @@ textarea.fi { resize: vertical; min-height: 96px; line-height: 1.5; }
 .fi::placeholder { color: #5f5a52; }
 .f-actions { grid-column: 1 / -1; display: flex; flex-wrap: wrap; align-items: center; gap: 14px 22px; margin-top: 10px; }
 .f-actions .btn { min-width: 260px; }
+.hp { position: absolute; left: -9999px; width: 1px; height: 1px; overflow: hidden; }
+.btn[disabled] { opacity: .6; cursor: wait; transform: none; }
 .f-actions a.mail { font-family: var(--bc); font-size: 14px; letter-spacing: 2px; text-transform: uppercase; color: var(--mute); text-decoration: none; border-bottom: 1px solid currentColor; }
 .f-actions a.mail:hover { color: var(--y); }
 .f-msg { grid-column: 1 / -1; font-size: 15px; color: #ff8a70; min-height: 1.2em; }
@@ -173,7 +175,6 @@ textarea.fi { resize: vertical; min-height: 96px; line-height: 1.5; }
       <p class="lead">Festivales, corporativos, cumpleaños y streaming. Ya estuvimos en varios y queremos estar en el tuyo.</p>
       <div class="cta">
         <a href="#contacto-evento" class="btn btn-y" id="go-form">Consultá disponibilidad</a>
-        <a href="https://wa.me/5491130455484?text=Hola!%20Quiero%20consultar%20por%20un%20evento%20con%20Shivo%27s" target="_blank" rel="noopener" class="btn btn-o">WhatsApp</a>
       </div>
       <p class="places"><b>BA Capital Gastronómica</b><i>/</i><b>Hipódromo de Palermo</b><i>/</i><b>La Rural</b></p>
     </div>
@@ -253,27 +254,27 @@ textarea.fi { resize: vertical; min-height: 96px; line-height: 1.5; }
       <div class="k">¿Querés a Shivo's en tu evento?</div>
       <h2 class="h2">Hablemos</h2>
       <p class="p">Contanos qué tenés en mente y te armamos una propuesta.</p>
-      <p class="contact-alt">WhatsApp <a href="https://wa.me/5491130455484" target="_blank" rel="noopener">11 3045-5484</a><br>Mail <a href="mailto:shivosburger@gmail.com">shivosburger@gmail.com</a></p>
+      <p class="contact-alt">Completá el formulario y te respondemos por mail o al teléfono que nos dejes.</p>
     </div>
     <div class="rv">
       <form class="f" id="ev-form" novalidate>
         <div class="fg"><label for="ev-nombre">Tu nombre <b>*</b></label><input class="fi" id="ev-nombre" autocomplete="name" placeholder="Nombre y apellido"></div>
-        <div class="fg"><label for="ev-tel">Teléfono o mail <b>*</b></label><input class="fi" id="ev-tel" autocomplete="tel" placeholder="Para responderte"></div>
+        <div class="fg"><label for="ev-tel">Mail o teléfono <b>*</b></label><input class="fi" id="ev-tel" autocomplete="email" placeholder="Para responderte"></div>
         <div class="fg"><label for="ev-tipo">Tipo de evento <b>*</b></label>
           <select class="fi" id="ev-tipo"><option value="">Elegí uno</option><option>Festival gastronómico</option><option>Evento corporativo</option><option>Cumpleaños / fiesta privada</option><option>Evento de streaming</option><option>Otro</option></select></div>
         <div class="fg"><label for="ev-personas">Personas</label><input class="fi" id="ev-personas" inputmode="numeric" placeholder="Ej: 200"></div>
         <div class="fg"><label for="ev-fecha">Fecha tentativa</label><input class="fi" type="date" id="ev-fecha"></div>
         <div class="fg"><label for="ev-lugar">Lugar</label><input class="fi" id="ev-lugar" placeholder="¿Dónde sería?"></div>
         <div class="fg full"><label for="ev-mensaje">Contanos más</label><textarea class="fi" id="ev-mensaje" rows="3" placeholder="Horarios, si necesitás algo especial, lo que sea"></textarea></div>
+        <div class="hp" aria-hidden="true"><label for="ev-web">Web</label><input id="ev-web" tabindex="-1" autocomplete="off"></div>
         <p class="f-msg" id="ev-msg" role="alert"></p>
         <div class="f-actions">
-          <button type="submit" class="btn btn-y">Enviar por WhatsApp</button>
-          <a href="#" class="mail" id="ev-mail">O mandalo por mail</a>
+          <button type="submit" class="btn btn-y" id="ev-send">Enviar consulta</button>
         </div>
       </form>
       <div class="ok" id="ev-ok" role="status">
-        <h3>¡Listo!</h3>
-        <p>Se abrió WhatsApp con tu consulta armada. Mandala y te respondemos a la brevedad. Si no se abrió, escribinos al 11 3045-5484.</p>
+        <h3>¡Consulta enviada!</h3>
+        <p>Nos llegó todo. Te respondemos a la brevedad para armar la propuesta.</p>
         <button type="button" id="ev-again">Hacer otra consulta</button>
       </div>
     </div>
@@ -311,7 +312,7 @@ textarea.fi { resize: vertical; min-height: 96px; line-height: 1.5; }
       personas: $('ev-personas').value.trim(), fecha: $('ev-fecha').value, lugar: $('ev-lugar').value.trim(), msg: $('ev-mensaje').value.trim() };
   }
   function fechaLinda(f){ if (!f) return ''; var p = f.split('-'); return p[2] + '/' + p[1] + '/' + p[0]; }
-  function texto(d){
+  function _unused(d){
     return 'Hola Shivo\'s! Quiero consultar por un evento.\n\n' +
       'Nombre: ' + d.nombre + '\nContacto: ' + d.tel + '\nTipo: ' + d.tipo +
       (d.personas ? '\nPersonas: ' + d.personas : '') + (d.fecha ? '\nFecha: ' + fechaLinda(d.fecha) : '') +
@@ -328,18 +329,20 @@ textarea.fi { resize: vertical; min-height: 96px; line-height: 1.5; }
   }
   ['ev-nombre','ev-tel','ev-tipo'].forEach(function(id){ $(id).addEventListener('input', function(){ this.classList.remove('bad'); }); $(id).addEventListener('change', function(){ this.classList.remove('bad'); }); });
 
+  var API = 'https://script.google.com/macros/s/AKfycbxg5-nuNNMLI42ZD8Jvx-6KbEODFSn-cNUxr8CRO3pLm8J7JccyPKNV0NK84h7j9zUbkA/exec';
   $('ev-form').addEventListener('submit', function(e){
     e.preventDefault();
     var d = valida(); if (!d) return;
-    var url = 'https://wa.me/5491130455484?text=' + encodeURIComponent(texto(d));
-    var w = window.open(url, '_blank');
-    if (w) { try { w.opener = null; } catch (err) {} } else { location.href = url; }
-    $('ev-form').style.display = 'none'; $('ev-ok').classList.add('on');
-  });
-  $('ev-mail').addEventListener('click', function(e){
-    e.preventDefault();
-    var d = valida(); if (!d) return;
-    location.href = 'mailto:shivosburger@gmail.com?subject=' + encodeURIComponent('Consulta de evento - ' + d.tipo + ' - ' + d.nombre) + '&body=' + encodeURIComponent(texto(d));
+    var btn = $('ev-send'); btn.disabled = true; btn.textContent = 'Enviando…';
+    fetch(API, { method: 'POST', body: JSON.stringify({ action: 'evento', nombre: d.nombre, contacto: d.tel, tipo: d.tipo, personas: d.personas,
+      fecha: fechaLinda(d.fecha), lugar: d.lugar, mensaje: d.msg, web: $('ev-web').value }) })
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        if (!j || !j.ok) throw new Error('x');
+        $('ev-form').style.display = 'none'; $('ev-ok').classList.add('on'); $('ev-form').reset();
+      })
+      .catch(function(){ $('ev-msg').textContent = 'No se pudo enviar. Probá de nuevo en un rato o escribinos a shivosburger@gmail.com.'; })
+      .then(function(){ btn.disabled = false; btn.textContent = 'Enviar consulta'; });
   });
   $('ev-again').addEventListener('click', function(){ $('ev-ok').classList.remove('on'); $('ev-form').style.display = ''; });
 })();
