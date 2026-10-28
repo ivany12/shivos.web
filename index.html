@@ -2329,6 +2329,8 @@ footer.fx { background: #000 !important; border-top: 0 !important; padding: 0 !i
 
       <div>
         <button class="form-submit" id="btn-enviar" onclick="enviarFormulario()">ENVIAR POSTULACIÓN</button>
+        <p id="cv-msg" role="alert" style="color:#ff8a70;font-size:14px;min-height:1.2em;margin:12px 0 0;"></p>
+        <div aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;"><input id="f-web" tabindex="-1" autocomplete="off"></div>
         <p class="form-notice">Te contactaremos por mail si tu perfil encaja con lo que buscamos.</p>
       </div>
     </div>
@@ -2563,32 +2565,36 @@ function mostrarNombreCV(input) {
   }
 }
 
-// ── Enviar formulario via mailto ──
+// ── Enviar postulación (llega por mail a shivosburger con el CV adjunto) ──
+var CV_API = 'https://script.google.com/macros/s/AKfycbxg5-nuNNMLI42ZD8Jvx-6KbEODFSn-cNUxr8CRO3pLm8J7JccyPKNV0NK84h7j9zUbkA/exec';
+function cvMsg(t) { var m = document.getElementById('cv-msg'); if (m) m.textContent = t || ''; }
 function enviarFormulario() {
-  var nombre = document.getElementById('f-nombre').value.trim();
-  var edad   = document.getElementById('f-edad').value.trim();
-  var mail   = document.getElementById('f-mail').value.trim();
-  var puesto = document.getElementById('f-puesto').value;
-  var cvFile = document.getElementById('f-cv') ? document.getElementById('f-cv').files[0] : null;
-
-  if (!nombre || !edad || !mail || !puesto) {
-    alert('Por favor completa todos los campos obligatorios.');
-    return;
-  }
-
-  var asunto = encodeURIComponent('Postulacion Shivos - ' + puesto + ' - ' + nombre);
-  var cvInfo = cvFile ? '\nCV: ' + cvFile.name + '\n(Adjuntalo manualmente al enviar)' : '';
-  var texto = 'Hola! Me postulo para trabajar en Shivos.\n\nNombre: ' + nombre + '\nEdad: ' + edad + '\nMail: ' + mail + '\nPuesto: ' + puesto + cvInfo + '\n\n---\nEnviado desde shivos.com.ar';
-  var cuerpo = encodeURIComponent(texto);
-
-  window.location.href = 'mailto:shivosburger@gmail.com?subject=' + asunto + '&body=' + cuerpo;
-
-  setTimeout(function() {
-    var form = document.getElementById('trabaja-form');
-    var success = document.getElementById('form-success');
-    if (form) form.style.display = 'none';
-    if (success) success.style.display = 'block';
-  }, 800);
+  var g = function (id) { return document.getElementById(id); };
+  var nombre = g('f-nombre').value.trim(), edad = g('f-edad').value.trim(), mail = g('f-mail').value.trim(), puesto = g('f-puesto').value;
+  var cvFile = g('f-cv') && g('f-cv').files[0] ? g('f-cv').files[0] : null;
+  var faltan = [];
+  [['f-nombre', nombre, 'tu nombre'], ['f-edad', edad, 'tu edad'], ['f-mail', mail, 'tu mail'], ['f-puesto', puesto, 'el puesto']].forEach(function (x) {
+    g(x[0]).style.borderColor = x[1] ? '' : '#ff4a2e'; if (!x[1]) faltan.push(x[2]);
+  });
+  if (faltan.length) { cvMsg('Falta ' + faltan.join(', ') + '.'); return; }
+  if (cvFile && cvFile.size > 5 * 1024 * 1024) { cvMsg('El CV pesa más de 5 MB. Probá con un PDF más liviano.'); return; }
+  if (cvFile && !/\.(pdf|docx?)$/i.test(cvFile.name)) { cvMsg('El CV tiene que ser PDF o Word.'); return; }
+  var btn = g('btn-enviar'); btn.disabled = true; btn.textContent = 'ENVIANDO…'; cvMsg('');
+  var enviar = function (cv) {
+    fetch(CV_API, { method: 'POST', body: JSON.stringify({ action: 'cv', nombre: nombre, edad: edad, mail: mail, puesto: puesto, cv: cv, web: (g('f-web') || {}).value || '' }) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (!j || !j.ok) throw new Error((j && j.error) || 'x');
+        g('trabaja-form').style.display = 'none'; g('form-success').style.display = 'block';
+      })
+      .catch(function (e) { cvMsg(e && e.message && e.message !== 'x' && e.message.indexOf('fetch') < 0 ? e.message + '.' : 'No se pudo enviar. Probá de nuevo en un rato.'); })
+      .then(function () { btn.disabled = false; btn.textContent = 'ENVIAR POSTULACIÓN'; });
+  };
+  if (!cvFile) return enviar(null);
+  var rd = new FileReader();
+  rd.onload = function () { var s = String(rd.result); enviar({ name: cvFile.name, type: cvFile.type, data: s.slice(s.indexOf(',') + 1) }); };
+  rd.onerror = function () { cvMsg('No se pudo leer el archivo del CV.'); btn.disabled = false; btn.textContent = 'ENVIAR POSTULACIÓN'; };
+  rd.readAsDataURL(cvFile);
 }
 </script>
 </body>
