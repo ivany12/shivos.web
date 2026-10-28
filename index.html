@@ -1854,6 +1854,18 @@ body { overflow-x: hidden; max-width: 100vw; }
   .form-submit { width: 100%; }
 }
 
+
+/* PEDIDO GRUPAL */
+.grupal-box { margin: 56px auto 0; max-width: 760px; border: 1px solid rgba(241,187,0,.45); background: rgba(241,187,0,.05); border-radius: 18px; padding: 40px 32px; text-align: center; }
+.grupal-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(36px, 6vw, 54px); letter-spacing: 2px; line-height: 1; color: #fff; margin: 10px 0 14px; }
+.grupal-title span { color: var(--yellow); }
+.grupal-desc { color: var(--text-light); max-width: 52ch; margin: 0 auto 26px; line-height: 1.6; }
+.grupal-steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 28px; }
+.grupal-step { font-family: 'Barlow Condensed', sans-serif; text-transform: uppercase; letter-spacing: 1.5px; font-size: 14px; color: #ddd; background: var(--gray); border-radius: 12px; padding: 16px 12px; display: flex; flex-direction: column; align-items: center; gap: 8px; }
+.grupal-step b { font-family: 'Bebas Neue', sans-serif; font-weight: 400; font-size: 30px; color: var(--yellow); line-height: 1; }
+.btn-grupal { display: inline-flex; align-items: center; justify-content: center; background: var(--yellow); color: var(--black); font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; padding: 16px 36px; border-radius: 50px; text-decoration: none; transition: transform .15s; }
+.btn-grupal:hover { transform: translateY(-2px); }
+@media (max-width: 600px) { .grupal-box { padding: 30px 18px; } .grupal-steps { grid-template-columns: 1fr; } .grupal-step { flex-direction: row; justify-content: flex-start; text-align: left; padding: 12px 14px; } .btn-grupal { width: 100%; } }
 </style>
 </head>
 <body>
@@ -1871,6 +1883,7 @@ body { overflow-x: hidden; max-width: 100vw; }
       </div>
     </li>
     <li><a href="#pedidos">Pedidos</a></li>
+    <li><a href="grupal/">Pedido grupal</a></li>
     <li><a href="https://menu.fu.do/shivos" target="_blank" class="nav-cta">PEDIR AHORA</a></li>
   </ul>
 </nav>
@@ -2325,6 +2338,18 @@ body { overflow-x: hidden; max-width: 100vw; }
         <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M7 18c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zM1 2v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96C5 16.1 6.9 18 9 18h12v-2H9.42c-.14 0-.25-.11-.25-.25l.03-.12.9-1.63H19c.75 0 1.41-.41 1.75-1.03l3.58-6.49A1 1 0 0023.46 5H5.21l-.94-2H1zm16 16c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2z"/></svg>
         IR A LA TIENDA
       </a>
+    </div>
+
+    <div class="grupal-box reveal" id="pedido-grupal">
+      <div class="section-eyebrow">Pedido grupal</div>
+      <div class="grupal-title">¿PIDEN EN <span>BANDA</span>?</div>
+      <p class="grupal-desc">Armá el pedido con tus amigos. Pasás un link, cada uno elige lo suyo desde el celu y al final uno lo pide por la tienda. Sin audios de cuatro minutos.</p>
+      <div class="grupal-steps">
+        <div class="grupal-step"><b>1</b>Creás el pedido y mandás el link</div>
+        <div class="grupal-step"><b>2</b>Cada uno suma lo que quiere</div>
+        <div class="grupal-step"><b>3</b>Uno se hace cargo y lo pide</div>
+      </div>
+      <a href="grupal/" class="btn-grupal">ARMAR PEDIDO GRUPAL</a>
     </div>
   </div>
 </section>
