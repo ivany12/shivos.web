@@ -1,5 +1,7 @@
-// Datos iniciales (importados de Fudo, 28/10/2026). Se cargan solo la primera vez.
-window.SEED = (() => {
+// Plantillas de arranque. Se cargan solo cuando el local está vacío.
+window.TEMPLATES = window.TEMPLATES || {};
+// Shivo's: carta importada de Fudo (28/10/2026)
+window.TEMPLATES.shivos = () => {
   const cats = [
     ['hamb', 'Hamburguesas'], ['gold', 'Línea Gold'], ['fuera', 'Fuera de menú'], ['ent', 'Entradas'],
     ['beb', 'Bebidas'], ['cerv', 'Cervezas y tragos'], ['ext', 'Extras'], ['ader', 'Aderezos'],
@@ -91,14 +93,14 @@ window.SEED = (() => {
   ];
   return {
     cats: cats.map(([id, name], i) => ({ id, name, pos: i })),
-    prods: P.map(([cat, name, price, g, k, desc], i) => ({ id: 'p' + (i + 1), cat, name, price, mods: g ? g.split(',') : [], kitchen: !!k, desc, active: true, pos: i })),
+    prods: P.map(([cat, name, price, g, k, desc], i) => ({ id: 'p' + (i + 1), cat, name, price, mods: g ? g.split(',') : [], station: k ? 'Cocina' : 'Barra', desc, active: true, online: !['pers', 'otros', 'ext'].includes(cat), fav: i < 6, libre: name === 'Producto genérico', pos: i })),
     mods: mods.map(m => ({ ...m, opts: m.opts.map(([n, p]) => ({ n, p })) })),
     users: [{ id: 'u1', name: 'Ivan', role: 'dueno', pin: '1234', active: true }],
     settings: {
-      id: 'main', local: "Shivo's", dir: 'Tinogasta 3239, Villa del Parque', pie: 'Gracias por elegirnos',
+      local: "Shivo's", dir: 'Tinogasta 3239, Villa del Parque', tel: '11 3045-5484', pie: 'No somos los mejores. Decidimos ser únicos.', color: '#f1bb00', estaciones: ['Cocina', 'Barra'],
       zonas: [{ name: 'Salón', mesas: 12 }, { name: 'Vereda', mesas: 4 }],
-      medios: ['Efectivo', 'Transferencia', 'Débito', 'Crédito', 'QR Mercado Pago', 'Online PedidosYa', 'Online Rappi', 'Efectivo PedidosYa'],
-      canales: ['Mostrador', 'Teléfono/WhatsApp', 'PedidosYa', 'Rappi', 'Tienda online']
+      medios: ['Efectivo', 'Transferencia', 'Débito', 'Crédito', 'QR Mercado Pago', 'Online PedidosYa', 'Online Rappi', 'Efectivo PedidosYa', 'Cuenta corriente'],
+      canales: ['Mostrador', 'Teléfono/WhatsApp', 'PedidosYa', 'Rappi'], repartidores: ['Repartidor 1']
     }
   };
-})();
+};

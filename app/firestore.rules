@@ -1,0 +1,23 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signed() { return request.auth != null && request.auth.token.email_verified == true; }
+    function em() { return request.auth.token.email.lower(); }
+    function member(t) { return signed() && em() in get(/databases/$(database)/documents/tenants/$(t)).data.members; }
+    match /tenants/{t} {
+      allow read: if signed() && em() in resource.data.members;
+      allow create: if signed() && request.resource.data.owner == em() && request.resource.data.members == [em()];
+      allow update: if signed() && resource.data.owner == em() && request.resource.data.owner == em() && em() in request.resource.data.members;
+      match /public/{d} { allow read: if true; allow write: if member(t); }
+      match /inbox/{d} {
+        allow get: if true;
+        allow create: if request.resource.data.estado == 'nuevo'
+          && request.resource.data.keys().hasOnly(['id','estado','tipo','mesa','zona','cliente','items','total','pago','nota','t'])
+          && request.resource.data.items is list && request.resource.data.items.size() > 0 && request.resource.data.items.size() <= 60
+          && request.resource.data.cliente.nombre is string && request.resource.data.cliente.nombre.size() <= 80;
+        allow list, update, delete: if member(t);
+      }
+      match /{c}/{d} { allow read, write: if member(t); }
+    }
+  }
+}

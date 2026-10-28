@@ -1,6 +1,6 @@
 // Guarda la app para que abra sin internet
-const C = 'shv-pos-v2';
-const FILES = ['./', 'index.html', 'app.js', 'seed.js', 'config.js', 'cloud.js', 'manifest.json', 'icon.svg', '../fonts/highvoltage.woff2'];
+const C = 'morfi-v3';
+const FILES = ['./', 'index.html', 'carta.html', 'config.js', 'core.js', 'v-servicio.js', 'v-gestion.js', 'v-admin.js', 'v-gente.js', 'templates.js', 'seed.js', 'cloud.js', 'manifest.json', 'icon.svg'];
 self.addEventListener('install', e => { e.waitUntil(caches.open(C).then(c => c.addAll(FILES)).then(() => self.skipWaiting())); });
 self.addEventListener('activate', e => { e.waitUntil(caches.keys().then(ks => Promise.all(ks.filter(k => k !== C).map(k => caches.delete(k)))).then(() => self.clients.claim())); });
 self.addEventListener('fetch', e => {
