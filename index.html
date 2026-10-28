@@ -1866,6 +1866,12 @@ body { overflow-x: hidden; max-width: 100vw; }
 .btn-grupal { display: inline-flex; align-items: center; justify-content: center; background: var(--yellow); color: var(--black); font-family: 'Bebas Neue', sans-serif; font-size: 20px; letter-spacing: 3px; padding: 16px 36px; border-radius: 50px; text-decoration: none; transition: transform .15s; }
 .btn-grupal:hover { transform: translateY(-2px); }
 @media (max-width: 600px) { .grupal-box { padding: 30px 18px; } .grupal-steps { grid-template-columns: 1fr; } .grupal-step { flex-direction: row; justify-content: flex-start; text-align: left; padding: 12px 14px; } .btn-grupal { width: 100%; } }
+
+/* Drawer: botón visible y pedido grupal destacado */
+.mobile-drawer.open .drawer-order { color: #000 !important; border-radius: 50px; font-style: normal; font-size: 22px; }
+.mobile-drawer.open .drawer-grupal { color: var(--yellow); }
+.mobile-drawer.open a { text-align: center; line-height: 1.15; }
+.mobile-menu-btn svg { display: block; }
 </style>
 </head>
 <body>
@@ -1886,7 +1892,19 @@ body { overflow-x: hidden; max-width: 100vw; }
     <li><a href="grupal/">Pedido grupal</a></li>
     <li><a href="https://menu.fu.do/shivos" target="_blank" class="nav-cta">PEDIR AHORA</a></li>
   </ul>
+  <button type="button" class="mobile-menu-btn" onclick="openDrawer()" aria-label="Abrir menú">
+    <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#f1bb00" stroke-width="2.4" stroke-linecap="round"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+  </button>
 </nav>
+<div class="mobile-drawer" id="mobile-drawer">
+  <button type="button" class="drawer-close" onclick="closeDrawer()" aria-label="Cerrar menú">✕</button>
+  <a href="#nosotros" onclick="closeDrawer()">La marca</a>
+  <a href="#menu" onclick="closeDrawer()">Menú</a>
+  <a href="#pedidos" onclick="closeDrawer()">Pedidos</a>
+  <a href="grupal/" class="drawer-grupal">Pedido grupal</a>
+  <a href="#trabaja" onclick="closeDrawer()">Trabajá con nosotros</a>
+  <a href="https://menu.fu.do/shivos" target="_blank" class="drawer-order" onclick="closeDrawer()">PEDIR AHORA</a>
+</div>
 
 <!-- HERO -->
 <section id="inicio" class="hero">
@@ -1902,6 +1920,7 @@ body { overflow-x: hidden; max-width: 100vw; }
       PEDIR AHORA
     </a>
     <a href="#menu" class="btn-secondary">VER MENÚ</a>
+    <a href="grupal/" class="btn-secondary btn-hero-grupal">PEDIDO GRUPAL</a>
   </div>
 
 </section>
