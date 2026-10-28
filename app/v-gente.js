@@ -121,7 +121,7 @@ function editUser(u) {
   ask(u.id ? 'Editar ' + u.name : 'Nuevo usuario', [
     { name: 'name', label: 'Nombre', value: u.name || '' },
     { name: 'role', label: 'Rol', type: 'select', options: Object.entries(ROLES).map(([k, r]) => [k, r.name]), value: u.role || 'mozo' },
-    { name: 'pin', label: 'PIN (4 a 6 números)', type: 'password', inputmode: 'numeric', value: u.pin || '' },
+    { name: 'pin', label: 'PIN (4 a 6 números)', type: 'text', secret: 1, inputmode: 'numeric', value: u.pin || '' },
     { name: 'tel', label: 'Teléfono', type: 'tel', value: u.tel || '', half: 1 },
     { name: 'valorHora', label: 'Valor hora $ (opcional)', type: 'number', value: u.valorHora || '', half: 1 },
     { name: 'active', label: 'Estado', type: 'select', options: [['1', 'Activo'], ['', 'Inactivo']], value: u.active === false ? '' : '1' }
@@ -151,12 +151,11 @@ VIEWFN.ajustes = el => {
       <div class="grid2"><label>Razón social<input name="rs" value="${esc(s.fiscal?.rs || '')}"></label><label>CUIT<input name="cuit" value="${esc(s.fiscal?.cuit || '')}"></label></div>
       <label>Condición frente al IVA<select name="iva">${['', 'Monotributista', 'Responsable inscripto', 'Exento'].map(x => `<option ${x === (s.fiscal?.iva || '') ? 'selected' : ''}>${x}</option>`).join('')}</select></label>
       <p class="muted">Factura electrónica (ARCA): próximamente. Con estos datos y tu certificado digital vamos a poder emitir facturas A/B/C desde el cobro.</p>
-      <label>Zonas y mesas (una por línea: Nombre, cantidad)<textarea name="zonas" rows="3">${s.zonas.map(z => z.name + ', ' + z.mesas).join('\n')}</textarea></label>
+      <p class="muted">Las zonas y las mesas se arman en <a href="#salon">Salón → Editar plano</a>.</p>
       <label>Estaciones de preparación (una por línea; cada una tiene su comanda y pantalla)<textarea name="estaciones" rows="3">${s.estaciones.join('\n')}</textarea></label>
       <div class="btns"><button class="btn pri">Guardar</button></div></form>`;
     $$('[data-col]', C).forEach(b => b.onclick = () => { $('[name=color]', C).value = b.dataset.col; $$('.sw', C).forEach(x => x.classList.toggle('on', x === b)); document.documentElement.style.setProperty('--acc', b.dataset.col); });
-    saveForm($('#f'), f => ({ local: f.get('local'), dir: f.get('dir'), tel: f.get('tel'), pie: f.get('pie'), color: f.get('color'), fiscal: { rs: f.get('rs'), cuit: f.get('cuit'), iva: f.get('iva') }, estaciones: lines(f, 'estaciones').length ? lines(f, 'estaciones') : ['Cocina'],
-      zonas: lines(f, 'zonas').map(l => { const [n, c] = l.split(','); return { name: n.trim(), mesas: Math.max(1, Math.min(99, +c || 1)) }; }) }));
+    saveForm($('#f'), f => ({ local: f.get('local'), dir: f.get('dir'), tel: f.get('tel'), pie: f.get('pie'), color: f.get('color'), fiscal: { rs: f.get('rs'), cuit: f.get('cuit'), iva: f.get('iva') }, estaciones: lines(f, 'estaciones').length ? lines(f, 'estaciones') : ['Cocina']}));
   }
   if (ajTab === 'venta') {
     C.innerHTML = `<form class="form" id="f">

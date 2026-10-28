@@ -95,11 +95,24 @@ h4{margin:14px 0 8px;font-size:14px}
 .l-foot{text-align:center;padding:30px}
 /* salón */
 .zona{margin-bottom:8px}
-.mesas{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px}
+.mesas{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:10px;margin-bottom:16px}
 .mesa{aspect-ratio:1.2;border-radius:16px;background:var(--bg2);border:1px solid var(--line);cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;box-shadow:var(--shadow);padding:6px}
 .mesa b{font-size:22px;font-weight:800}.mesa small{color:var(--mut);font-size:12px;text-align:center}.mesa strong{font-size:15px}
 .mesa.busy{background:color-mix(in srgb,var(--acc) 14%,var(--bg2));border-color:color-mix(in srgb,var(--acc) 55%,var(--line))}
 .mesa.bill{background:color-mix(in srgb,var(--warn) 18%,var(--bg2));border-color:var(--warn)}
+.zonetabs{display:flex;gap:0;border-bottom:2px solid var(--line);margin-bottom:16px;overflow-x:auto;scrollbar-width:none}.zonetabs::-webkit-scrollbar{display:none}
+.zonetabs button{border:0;background:none;padding:12px 18px;font-weight:700;color:var(--mut);cursor:pointer;border-bottom:3px solid transparent;margin-bottom:-2px;white-space:nowrap;text-transform:uppercase;letter-spacing:.04em;font-size:13px}
+.zonetabs button.on{color:var(--tx);border-color:var(--acc)}.zonetabs b{background:var(--acc);color:var(--on-acc);border-radius:999px;padding:0 7px;font-size:11px;margin-left:4px}
+.plano{display:grid;grid-template-columns:repeat(var(--c),minmax(0,1fr));gap:clamp(8px,2vw,22px);max-width:min(calc(var(--c) * 150px),calc((100vh - 230px) * var(--c) / var(--r)));min-width:min(100%,calc(var(--c) * 56px));margin-bottom:16px}
+.plano>i{aspect-ratio:1;display:block}
+.plano .mesa{aspect-ratio:1;width:100%;min-width:0}
+.plano .mesa.sm{width:78%;justify-self:center;align-self:center}
+.mesa.rd{border-radius:50%}
+.plano .mesa b{font-size:clamp(16px,2.4vw,28px)}.plano .mesa small,.plano .mesa strong{font-size:clamp(10px,1.1vw,13px)}
+.plano.edit .mesa{border-style:dashed;cursor:grab}.mesa.moving{outline:3px solid var(--acc);outline-offset:3px}
+.slot{aspect-ratio:1;border:2px dashed var(--line);border-radius:14px;background:transparent;color:var(--mut);font-size:20px;cursor:pointer}.slot:hover{border-color:var(--acc);color:var(--acc)}
+.hint{color:var(--mut);margin:-6px 0 12px}
+.secret{-webkit-text-security:disc}
 .mesa.res{background:color-mix(in srgb,#3a86ff 10%,var(--bg2));border-color:color-mix(in srgb,#3a86ff 50%,var(--line))}
 /* pedidos */
 .cols{display:grid;grid-template-columns:repeat(4,minmax(230px,1fr));gap:12px;overflow-x:auto;padding-bottom:6px}

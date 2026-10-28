@@ -1,6 +1,11 @@
 // Plantillas de arranque. Se cargan solo cuando el local está vacío.
 window.TEMPLATES = window.TEMPLATES || {};
 // Shivo's: carta importada de Fudo (28/10/2026)
+// Plano real de Shivo's (importado de Fudo): [mesa, fila, columna, forma 0=cuadrada 1=redonda, tamaño]
+const SHIVOS_PLANO = [['ADENTRO', [[1, 0, 0, 0, 'l'], [2, 2, 0, 0, 'l'], [3, 4, 0, 1, 'l'], [4, 0, 2, 1, 'l'], [5, 2, 2, 0, 's'], [6, 4, 2, 0, 's'], [7, 0, 4, 0, 's'], [8, 2, 4, 0, 's'], [19, 4, 4, 0, 'l']]],
+  ['AFUERA', [[9, 1, 0, 0, 'l'], [10, 1, 3, 0, 'l'], [11, 1, 6, 0, 'l']]], ['TAKE AWAY', [[12, 0, 1, 1, 's'], [13, 0, 2, 1, 's'], [14, 0, 3, 1, 's'], [15, 1, 0, 1, 's'], [16, 1, 1, 1, 's'], [17, 1, 2, 1, 's'], [18, 1, 3, 1, 's']]]]
+  .map(([name, t]) => ({ name, tables: t.map(([n, r, c, sh, size]) => ({ n: String(n), r, c, shape: sh ? 'rd' : 'sq', size })) }));
+window.SHIVOS_PLANO = SHIVOS_PLANO;
 window.TEMPLATES.shivos = () => {
   const cats = [
     ['hamb', 'Hamburguesas'], ['gold', 'Línea Gold'], ['fuera', 'Fuera de menú'], ['ent', 'Entradas'],
@@ -98,7 +103,7 @@ window.TEMPLATES.shivos = () => {
     users: [{ id: 'u1', name: 'Ivan', role: 'dueno', pin: '1234', active: true }],
     settings: {
       local: "Shivo's", dir: 'Tinogasta 3239, Villa del Parque', tel: '11 3045-5484', pie: 'No somos los mejores. Decidimos ser únicos.', color: '#f1bb00', estaciones: ['Cocina', 'Barra'],
-      zonas: [{ name: 'Salón', mesas: 12 }, { name: 'Vereda', mesas: 4 }],
+      zonas: SHIVOS_PLANO,
       medios: ['Efectivo', 'Transferencia', 'Débito', 'Crédito', 'QR Mercado Pago', 'Online PedidosYa', 'Online Rappi', 'Efectivo PedidosYa', 'Cuenta corriente'],
       canales: ['Mostrador', 'Teléfono/WhatsApp', 'PedidosYa', 'Rappi'], repartidores: ['Repartidor 1']
     }

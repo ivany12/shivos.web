@@ -1,23 +1,85 @@
 /* Morfi · servicio: salón, pedidos, pedido/mesa, cobro, cocina */
 'use strict';
 
-/* ───────── salón ───────── */
+/* ───────── salón: plano por zonas (como el local real) ───────── */
+let zonaSel = 0, planEdit = false, moving = null, salonVista = null;
 VIEWFN.salon = el => {
   const s = settings();
+  const zonas = s.zonas.length ? s.zonas : [{ name: 'Salón', tables: [] }];
+  if (zonaSel >= zonas.length) zonaSel = 0;
   const abiertas = DB.list('orders').filter(o => o.estado === 'abierta' && o.tipo === 'mesa');
   const hoy = dayKey(Date.now());
   const resHoy = DB.list('reservas').filter(r => r.fecha === hoy && ['pendiente', 'confirmada'].includes(r.estado));
   const tot = sum(abiertas, o => orderCalc(o).total);
+  const z = zonas[zonaSel];
+  const tables = zonaTables(z, zonaSel, zonas);
+  const vista = salonVista || local.get('salonVista') || (innerWidth < 600 ? 'lista' : 'plano');
+  const cols = Math.max(1, z.cols || 0, ...tables.map(t => t.c + 1)) + (planEdit ? 1 : 0);
+  const rows = Math.max(1, z.rows || 0, ...tables.map(t => t.r + 1)) + (planEdit ? 1 : 0);
+  const busyIn = zz => zonaTables(zz, zonas.indexOf(zz), zonas).filter(t => abiertas.some(o => o.mesa === t.n)).length;
+  const cell = t => {
+    const o = abiertas.find(x => x.mesa === t.n);
+    const r = !o && resHoy.find(x => x.mesa === t.n);
+    const c = o ? orderCalc(o) : null;
+    return `<button class="mesa ${t.shape === 'rd' ? 'rd' : ''} ${t.size === 's' ? 'sm' : ''} ${o ? (o.cuenta ? 'bill' : 'busy') : r ? 'res' : ''} ${moving === t.n ? 'moving' : ''}" data-m="${esc(t.n)}" style="grid-row:${t.r + 1};grid-column:${t.c + 1}">
+      <b>${esc(t.n)}</b>${o ? `<strong>${money(c.total)}</strong><small>${mins(o.creado)}′${o.pax ? ' · ' + o.pax + 'p' : ''}</small>` : r ? `<small>${esc(r.hora)} ${esc(r.nombre)}</small>` : ''}</button>`;
+  };
+  let grid = '';
+  if (vista === 'plano' || planEdit) {
+    const empties = [];
+    if (planEdit) for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (!tables.some(t => t.r === r && t.c === c)) empties.push(`<button class="slot" data-r="${r}" data-c="${c}" style="grid-row:${r + 1};grid-column:${c + 1}">${moving ? 'mover acá' : '+'}</button>`);
+    grid = `<div class="plano ${planEdit ? 'edit' : ''}" style="--c:${cols};--r:${rows}">${tables.map(cell).join('')}${empties.join('')}${planEdit ? '' : Array.from({ length: rows }, (_, r) => `<i style="grid-row:${r + 1};grid-column:1"></i>`).join('')}</div>`;
+  } else grid = `<div class="mesas">${tables.slice().sort((a, b) => String(a.n).localeCompare(String(b.n), 'es', { numeric: true })).map(t => cell({ ...t, r: -1 }).replace(/style="[^"]*"/, '')).join('')}</div>`;
   el.innerHTML = `<div class="page"><div class="bar"><div><h2>Salón</h2><p class="muted">${abiertas.length} mesas abiertas · ${money(tot)} en curso${resHoy.length ? ` · ${resHoy.length} reservas hoy` : ''}</p></div>
-    <div class="legend"><span><i class="lg free"></i>Libre</span><span><i class="lg busy"></i>Ocupada</span><span><i class="lg bill"></i>Pidió la cuenta</span><span><i class="lg res"></i>Reservada</span></div></div>
-    ${s.zonas.map(z => `<section class="zona"><h3>${esc(z.name)}</h3><div class="mesas">${Array.from({ length: z.mesas }, (_, i) => {
-      const name = (s.zonas.length > 1 && z !== s.zonas[0] ? z.name[0].toUpperCase() : '') + (i + 1);
-      const o = abiertas.find(x => x.mesa === name);
-      const r = !o && resHoy.find(x => x.mesa === name);
-      const c = o ? orderCalc(o) : null;
-      return `<button class="mesa ${o ? (o.cuenta ? 'bill' : 'busy') : r ? 'res' : ''}" data-m="${esc(name)}"><b>${esc(name)}</b>
-        ${o ? `<strong>${money(c.total)}</strong><small>${mins(o.creado)}′ · ${esc(o.mozo || o.por || '')}${o.pax ? ' · ' + o.pax + 'p' : ''}</small>` : r ? `<small>${esc(r.hora)} ${esc(r.nombre)}</small>` : '<small>libre</small>'}</button>`;
-    }).join('')}</div></section>`).join('')}</div>`;
+    <div class="quick">${planEdit ? '<button class="btn" id="zadd">+ Zona</button><button class="btn" id="zren">Renombrar zona</button><button class="btn ghost danger-t" id="zdel">Borrar zona</button><button class="btn pri" id="pdone">Listo</button>'
+      : `${tabs([['plano', 'Plano'], ['lista', 'Lista']], vista, 'vista')}${can('stock') ? '<button class="btn ghost" id="pedit">Editar plano</button>' : ''}`}</div></div>
+    <div class="zonetabs">${zonas.map((zz, i) => `<button class="${i === zonaSel ? 'on' : ''}" data-z="${i}">${esc(zz.name)}${busyIn(zz) ? ` <b>${busyIn(zz)}</b>` : ''}</button>`).join('')}</div>
+    ${planEdit ? `<p class="hint">${moving ? `Tocá el lugar vacío adonde va la mesa ${esc(moving)}.` : 'Tocá un “+” para agregar una mesa, o una mesa para cambiarle número, forma o lugar.'}</p>` : ''}
+    ${tables.length || planEdit ? grid : empty('Esta zona no tiene mesas', can('stock') ? 'Tocá “Editar plano” para armarla.' : '')}
+    ${planEdit ? '' : '<div class="legend"><span><i class="lg free"></i>Libre</span><span><i class="lg busy"></i>Ocupada</span><span><i class="lg bill"></i>Pidió la cuenta</span><span><i class="lg res"></i>Reservada</span></div>'}</div>`;
+  $$('[data-z]', el).forEach(b => b.onclick = () => { zonaSel = +b.dataset.z; moving = null; render(); });
+  $$('[data-vista]', el).forEach(b => b.onclick = () => { salonVista = b.dataset.vista; local.set('salonVista', salonVista); render(); });
+  const saveZonas = nz => DB.put('settings', { ...settings(), id: 'main', zonas: nz });
+  const curZonas = () => settings().zonas.map((zz, i) => ({ name: zz.name, cols: zz.cols, rows: zz.rows, tables: zonaTables(zz, i, settings().zonas).map(t => ({ ...t })) }));
+  const nameTaken = (n, except) => allTables().some(x => x === n && x !== except);
+  $('#pedit') && ($('#pedit').onclick = () => { planEdit = true; moving = null; render(); });
+  if (planEdit) {
+    $('#pdone').onclick = () => { planEdit = false; moving = null; render(); };
+    $('#zadd').onclick = () => ask('Nueva zona', [{ name: 'n', label: 'Nombre', ph: 'Ej: Terraza, Barra, Take away' }], v => { if (!v.n.trim()) return false; const nz = curZonas(); nz.push({ name: v.n.trim(), tables: [] }); saveZonas(nz); zonaSel = nz.length - 1; });
+    $('#zren').onclick = () => ask('Renombrar zona', [{ name: 'n', label: 'Nombre', value: z.name }], v => { const nz = curZonas(); nz[zonaSel].name = v.n.trim() || z.name; saveZonas(nz); });
+    $('#zdel').onclick = () => { if (tables.length) return toast('Primero borrá o mové sus mesas', 1); if (zonas.length < 2) return toast('Tiene que quedar al menos una zona', 1); confirmBox('¿Borrar la zona ' + z.name + '?', () => { const nz = curZonas(); nz.splice(zonaSel, 1); zonaSel = 0; saveZonas(nz); }, 'Borrar'); };
+    $$('.slot', el).forEach(b => b.onclick = () => {
+      const r = +b.dataset.r, c = +b.dataset.c, nz = curZonas();
+      if (moving) { const t = nz.flatMap(x => x.tables).find(t => t.n === moving); nz.forEach(x => x.tables = x.tables.filter(t => t.n !== moving)); nz[zonaSel].tables.push({ ...t, r, c }); moving = null; return saveZonas(nz); }
+      const nums = allTables().map(n => parseInt(n, 10)).filter(n => !isNaN(n));
+      ask('Nueva mesa', [{ name: 'n', label: 'Número o nombre', value: String((nums.length ? Math.max(...nums) : 0) + 1) }, { name: 'shape', label: 'Forma', type: 'select', options: [['sq', 'Cuadrada'], ['rd', 'Redonda']] }, { name: 'size', label: 'Tamaño', type: 'select', options: [['l', 'Grande'], ['s', 'Chica']] }], v => {
+        const n = v.n.trim().toUpperCase(); if (!n) return false; if (nameTaken(n)) { toast('Ya existe la mesa ' + n, 1); return false; }
+        nz[zonaSel].tables.push({ n, r, c, shape: v.shape, size: v.size }); saveZonas(nz);
+      }, 'Agregar');
+    });
+    $$('.mesa', el).forEach(b => b.onclick = () => {
+      const t = tables.find(x => x.n === b.dataset.m);
+      if (moving === t.n) { moving = null; return render(); }
+      modal(`<h3>Mesa ${esc(t.n)}</h3><form class="form"><label>Número o nombre<input name="n" value="${esc(t.n)}"></label>
+        <div class="grid2"><label>Forma<select name="shape"><option value="sq" ${t.shape !== 'rd' ? 'selected' : ''}>Cuadrada</option><option value="rd" ${t.shape === 'rd' ? 'selected' : ''}>Redonda</option></select></label>
+        <label>Tamaño<select name="size"><option value="l" ${t.size !== 's' ? 'selected' : ''}>Grande</option><option value="s" ${t.size === 's' ? 'selected' : ''}>Chica</option></select></label></div>
+        <label>Zona<select name="z">${zonas.map((zz, i) => `<option value="${i}" ${i === zonaSel ? 'selected' : ''}>${esc(zz.name)}</option>`).join('')}</select></label>
+        <div class="btns"><button type="button" class="btn ghost danger-t" id="del">Borrar</button><button type="button" class="btn" id="mv">Mover de lugar</button><button class="btn pri">Guardar</button></div></form>`, (m, close) => {
+        $('#mv', m).onclick = () => { close(); moving = t.n; render(); };
+        $('#del', m).onclick = () => { if (abiertas.some(o => o.mesa === t.n)) return toast('La mesa está ocupada', 1); close(); const nz = curZonas(); nz[zonaSel].tables = nz[zonaSel].tables.filter(x => x.n !== t.n); saveZonas(nz); };
+        $('form', m).onsubmit = e => {
+          e.preventDefault(); const f = new FormData(e.target); const n = f.get('n').trim().toUpperCase();
+          if (!n) return; if (n !== t.n && nameTaken(n)) return toast('Ya existe la mesa ' + n, 1);
+          if (n !== t.n && abiertas.some(o => o.mesa === t.n)) return toast('Cerrá la mesa antes de renombrarla', 1);
+          const nz = curZonas(); nz[zonaSel].tables = nz[zonaSel].tables.filter(x => x.n !== t.n);
+          const zi = +f.get('z'); let { r, c } = t;
+          if (zi !== zonaSel) { const occ = nz[zi].tables; r = 0; c = 0; while (occ.some(x => x.r === r && x.c === c)) { c++; if (c > 7) { c = 0; r++; } } }
+          nz[zi].tables.push({ n, r, c, shape: f.get('shape'), size: f.get('size') }); saveZonas(nz); close();
+        };
+      });
+    });
+    return;
+  }
   $$('.mesa', el).forEach(b => b.onclick = () => {
     const m = b.dataset.m;
     const o = abiertas.find(x => x.mesa === m);

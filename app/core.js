@@ -156,6 +156,13 @@ function promoFor(p, t = Date.now()) {
   const d = new Date(t), hm = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
   return (settings().promos || []).find(pr => pr.pct && (!pr.dias?.length || pr.dias.includes(DIAS[d.getDay()])) && (!pr.desde || (pr.desde <= pr.hasta ? hm >= pr.desde && hm < pr.hasta : hm >= pr.desde || hm < pr.hasta)) && (!pr.cat || pr.cat === 'todas' || pr.cat === p.cat || pr.cat.toLowerCase() === (DB.get('cats', p.cat)?.name || '').toLowerCase()));
 }
+// plano del salón: cada zona es una grilla (filas × columnas) con mesas cuadradas o redondas
+function zonaTables(z, zi, all) {
+  if (Array.isArray(z.tables)) return z.tables;
+  const pre = all && all.length > 1 && zi ? z.name[0].toUpperCase() : '';
+  return Array.from({ length: z.mesas || 0 }, (_, i) => ({ n: pre + (i + 1), r: Math.floor(i / 6), c: i % 6, shape: 'sq', size: 'l' }));
+}
+const allTables = (s = settings()) => s.zonas.flatMap((z, zi) => zonaTables(z, zi, s.zonas).map(t => t.n));
 const saldoCliente = id => sum(DB.list('ctamov').filter(m => m.cli === id), m => m.monto);
 
 /* ───────── impresión (80 mm) ───────── */
@@ -234,7 +241,7 @@ function field(f) {
   const v = f.value ?? '';
   if (f.type === 'select') return `<select name="${f.name}">${f.options.map(o => { const [val, lab] = Array.isArray(o) ? o : [o, o]; return `<option value="${esc(val)}" ${String(val) === String(v) ? 'selected' : ''}>${esc(lab)}</option>`; }).join('')}</select>`;
   if (f.type === 'textarea') return `<textarea name="${f.name}" rows="${f.rows || 3}" placeholder="${esc(f.ph || '')}">${esc(v)}</textarea>`;
-  return `<input name="${f.name}" type="${f.type || 'text'}" value="${esc(v)}" ${f.inputmode ? `inputmode="${f.inputmode}"` : ''} ${f.ph ? `placeholder="${esc(f.ph)}"` : ''} ${f.list ? `list="${f.list}"` : ''} ${f.step ? `step="${f.step}"` : ''} autocomplete="off">`;
+  return `<input name="${f.name}" type="${f.type || 'text'}" value="${esc(v)}" ${f.inputmode ? `inputmode="${f.inputmode}"` : ''} ${f.ph ? `placeholder="${esc(f.ph)}"` : ''} ${f.list ? `list="${f.list}"` : ''} ${f.step ? `step="${f.step}"` : ''} ${f.secret ? 'class="secret" data-lpignore="true" data-1p-ignore' : ''} autocomplete="off">`;
 }
 function ask(title, fields, onOk, okText = 'Guardar', extra = '') {
   modal(`<h3>${esc(title)}</h3><form class="form">${fields.map(f => f.type === 'html' ? f.html : `<label class="${f.half ? 'half' : ''}">${esc(f.label)}${field(f)}</label>`).join('')}${extra}
@@ -363,7 +370,7 @@ function publishMenu() {
     const mods = DB.list('mods');
     const used = new Set(prods.flatMap(p => p.mods || []));
     const menu = {
-      id: 'menu', local: s.local, dir: s.dir, tel: s.tel, color: s.color, tienda: s.tienda, envios: s.envios, mesas: s.zonas,
+      id: 'menu', local: s.local, dir: s.dir, tel: s.tel, color: s.color, tienda: s.tienda, envios: s.envios, mesas: allTables(s),
       cats: cats.filter(c => prods.some(p => p.cat === c.id)).map(c => ({ id: c.id, name: c.name })),
       prods: prods.map(p => ({ id: p.id, cat: p.cat, name: p.name, price: p.price, desc: p.desc || '', mods: p.mods || [], img: p.img || '' })),
       mods: mods.filter(m => used.has(m.id)), t: Date.now()
@@ -401,6 +408,8 @@ function seedIfEmpty(tpl) {
 window.startApp = (tpl) => {
   window.__started = true;
   seedIfEmpty(tpl);
+  // Shivo's: pasar al plano real importado de Fudo (una sola vez)
+  if (tpl === 'shivos' && window.SHIVOS_PLANO && !settings().zonas.some(z => Array.isArray(z.tables))) DB.put('settings', { ...settings(), id: 'main', zonas: window.SHIVOS_PLANO });
   applyTheme();
   const saved = sessionStorage.getItem('morfi_me');
   ME = saved ? DB.get('users', saved) || null : null;

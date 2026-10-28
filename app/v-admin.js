@@ -103,7 +103,7 @@ function editMod(g) {
 function showQR() {
   const url = window.PUBLIC_URL ? window.PUBLIC_URL() : location.href.replace(/app\/.*$/, 'app/carta.html');
   const s = settings();
-  const mesas = s.zonas.flatMap((z, zi) => Array.from({ length: z.mesas }, (_, i) => (s.zonas.length > 1 && zi ? z.name[0].toUpperCase() : '') + (i + 1)));
+  const mesas = allTables(s);
   const qr = u => `https://api.qrserver.com/v1/create-qr-code/?size=360x360&margin=10&data=${encodeURIComponent(u)}`;
   modal(`<h3>Carta online y QR</h3><p class="muted">Tus clientes ven la carta y hacen pedidos (retiro, delivery o desde la mesa). Los pedidos te llegan en Pedidos para aceptar.</p>
     <div class="qrbox"><img src="${qr(url)}" alt="QR de la carta" width="180" height="180"><div><b>Link de tu tienda</b><input readonly value="${esc(url)}" id="qu"><div class="quick"><button class="btn sm" id="cp">Copiar link</button><a class="btn sm" href="${esc(url)}" target="_blank" rel="noopener">Abrir</a><button class="btn sm" id="pq">Imprimir QR de mesas</button></div></div></div>

@@ -47,7 +47,7 @@ window.TEMPLATES.demo = () => {
     { id: 'dip', name: 'Dip', min: 1, max: 1, opts: [['Salsa de tomate', 0], ['Barbacoa', 0], ['Alioli', 0]] }
   ];
   return {
-    settings: { local: 'La Esquina (demo)', dir: 'Av. Siempreviva 742', tel: '11 5555-0000', color: '#e4572e', zonas: [{ name: 'Salón', mesas: 12 }, { name: 'Patio', mesas: 6 }], repartidores: ['Lucas', 'Martina'],
+    settings: { local: 'La Esquina (demo)', dir: 'Av. Siempreviva 742', tel: '11 5555-0000', color: '#e4572e', zonas: [{ name: 'Salón', tables: [[1, 0, 0, 'sq'], [2, 0, 1, 'sq'], [3, 0, 2, 'sq'], [4, 0, 4, 'rd'], [5, 2, 0, 'rd'], [6, 2, 1, 'sq'], [7, 2, 2, 'sq'], [8, 2, 4, 'rd'], [9, 4, 0, 'sq'], [10, 4, 1, 'sq'], [11, 4, 3, 'rd', 's'], [12, 4, 4, 'rd', 's']].map(([n, r, c, shape, size]) => ({ n: String(n), r, c, shape, size: size || 'l' })) }, { name: 'Patio', tables: [[20, 0, 0], [21, 0, 1], [22, 0, 2], [23, 1, 0], [24, 1, 1], [25, 1, 2]].map(([n, r, c]) => ({ n: String(n), r, c, shape: 'rd', size: 's' })) }], repartidores: ['Lucas', 'Martina'],
       tienda: { activa: true, retiro: true, delivery: true, mesa: true, minimo: 8000, mensaje: 'Martes a domingo de 19 a 00 h · Envíos sin cargo en 10 cuadras', alias: 'la.esquina.mp' } },
     cats: cats.map(([id, name], i) => ({ id, name, pos: i })),
     insumos: ins.map(([id, name, unit, costo, stock, min, cat, prov]) => ({ id, name, unit, costo, stock, min, max: min * 3, cat, prov, controlar: true })),

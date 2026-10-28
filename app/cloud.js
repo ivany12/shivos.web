@@ -98,7 +98,7 @@ function wizard() {
     <form class="form" id="wz">
       <label>Nombre del local<input name="name" required value="${isIvan ? "Shivo's" : ''}" placeholder="Ej: La Esquina"></label>
       <label>Carta para empezar<select name="tpl">${isIvan ? '<option value="shivos">Carta de Shivo\'s (importada de Fudo)</option>' : ''}<option value="demo">Carta de ejemplo (para ver cómo funciona)</option><option value="vacio">Vacía (la cargo yo)</option></select></label>
-      <div class="grid2"><label>Tu nombre<input name="owner" required value="${isIvan ? 'Ivan' : ''}"></label><label>Tu PIN (4 a 6 números)<input name="pin" required inputmode="numeric" pattern="[0-9]{4,6}" type="password"></label></div>
+      <div class="grid2"><label>Tu nombre<input name="owner" required value="${isIvan ? 'Ivan' : ''}"></label><label>Tu PIN (4 a 6 números)<input name="pin" required inputmode="numeric" pattern="[0-9]{4,6}" type="text" class="secret" autocomplete="off" data-lpignore="true" data-1p-ignore></label></div>
       <div class="btns"><button type="button" class="btn ghost" id="out">Salir</button><button class="btn pri">Crear local</button></div><p class="gate-msg muted"></p></form>`);
   document.getElementById('out').onclick = window.CLOUD_SIGNOUT;
   document.getElementById('wz').onsubmit = async e => {
