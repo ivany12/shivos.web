@@ -266,6 +266,7 @@ VIEWFN.orden = el => {
     if (!can('anular')) return toast('Solo el encargado puede anular', 1);
     ask('Anular ' + orderLabel(cur), [{ name: 'motivo', label: 'Motivo', ph: 'Ej: se fueron, error de carga' }], v => {
       DB.put('orders', { ...cur, estado: 'anulada', motivo: v.motivo || 'Sin motivo', anuladaPor: ME.name, cerrado: Date.now() });
+      DB.list('kds').filter(k => k.orderId === cur.id && k.estado === 'pendiente').forEach(k => DB.put('kds', { ...k, estado: 'anulado' }));
       syncInbox(cur, 'rechazado');
       go(o.tipo === 'mesa' ? 'salon' : 'pedidos');
     }, 'Anular');
