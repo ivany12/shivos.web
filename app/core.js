@@ -275,7 +275,7 @@ const VIEWFN = {};
 function render(soft) {
   if (!window.__started) return;
   parse();
-  if (!ME) return viewLogin();
+  if (!ME) { if (soft && $('.login .keys')) return; return viewLogin(); }
   const allowed = ROLES[ME.role].views;
   if (route.v === 'orden' && route.id) return shell(VIEWFN.orden, soft);
   if (!allowed.includes(route.v)) return go(allowed[0]);
@@ -358,9 +358,9 @@ function publishMenu() {
       prods: prods.map(p => ({ id: p.id, cat: p.cat, name: p.name, price: p.price, desc: p.desc || '', mods: p.mods || [], img: p.img || '' })),
       mods: mods.filter(m => used.has(m.id)), t: Date.now()
     };
-    const cur = DB.get('public', 'menu');
     const sig = JSON.stringify({ ...menu, t: 0 });
-    if (cur && JSON.stringify({ ...cur, t: 0, upd: undefined, id: 'menu' }) === sig) return;
+    if (sig === publishMenu.last || (!publishMenu.last && DB.get('public', 'menu') && local.get('pubsig') === sig)) { publishMenu.last = sig; return; }
+    publishMenu.last = sig; local.set('pubsig', sig);
     DB.put('public', menu);
   }, 1500);
 }
