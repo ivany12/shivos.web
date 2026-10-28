@@ -1,0 +1,20 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Pedido grupal · Shivo's</title>
+<meta name="description" content="Armá el pedido de Shivo's con tus amigos. Cada uno elige lo suyo desde el celu.">
+<meta property="og:title" content="Pedido grupal · Shivo's">
+<meta property="og:description" content="Cada uno elige lo suyo. Uno lo pide.">
+<style>body{margin:0;background:#000;color:#f1bb00;font-family:system-ui,sans-serif;display:grid;place-items:center;min-height:100vh;text-align:center}a{color:#f1bb00}</style>
+</head>
+<body>
+<p>Armando tu pedido grupal…<br><a id="go" href="https://script.google.com/macros/s/AKfycbxg5-nuNNMLI42ZD8Jvx-6KbEODFSn-cNUxr8CRO3pLm8J7JccyPKNV0NK84h7j9zUbkA/exec?nuevo=1">Tocá acá si no avanza</a></p>
+<script>
+var APP = 'https://script.google.com/macros/s/AKfycbxg5-nuNNMLI42ZD8Jvx-6KbEODFSn-cNUxr8CRO3pLm8J7JccyPKNV0NK84h7j9zUbkA/exec';
+var g = (new URLSearchParams(location.search).get('g') || '').replace(/[^A-Za-z0-9]/g, '');
+location.replace(APP + (g ? '?g=' + g : '?nuevo=1'));
+</script>
+</body>
+</html>
