@@ -197,7 +197,7 @@ VIEWFN.orden = el => {
   const drawProds = () => {
     const t = q.value.trim().toLowerCase();
     const l = t ? prods.filter(p => p.name.toLowerCase().includes(t)) : catSel === 'fav' ? fav : prods.filter(p => p.cat === catSel);
-    grid.innerHTML = l.map(p => `<button class="prod ${sinStock(p) ? 'out' : ''}" data-p="${p.id}">${p.img ? `<img src="${esc(p.img)}" alt="" loading="lazy">` : ''}<b>${esc(p.name)}</b><span>${money(p.price)}</span>${sinStock(p) ? '<em>sin stock</em>' : ''}</button>`).join('') || '<p class="muted">Sin resultados</p>';
+    grid.innerHTML = l.map(p => { const pr = promoFor(p); return `<button class="prod ${sinStock(p) ? 'out' : ''}" data-p="${p.id}">${p.img ? `<img src="${esc(p.img)}" alt="" loading="lazy">` : ''}<b>${esc(p.name)}</b><span>${money(p.price)}${pr ? ` <i class="promo">−${pr.pct}%</i>` : ''}</span>${sinStock(p) ? '<em>sin stock</em>' : ''}</button>`; }).join('') || '<p class="muted">Sin resultados</p>';
     $$('.prod', grid).forEach(b => b.onclick = () => addProduct(DB.get('prods', b.dataset.p)));
   };
   q.oninput = drawProds;
@@ -209,10 +209,12 @@ VIEWFN.orden = el => {
     const push = (mods, nota, qty = 1, price) => {
       const cur = DB.get('orders', o.id);
       const pr = price ?? p.price;
+      const promo = price == null ? promoFor(p) : null;
+      if (promo) mods = mods.concat({ g: 'promo', n: promo.nombre + ' −' + promo.pct + '%', p: -Math.round((pr + sum(mods, m => m.p)) * promo.pct / 100) });
       const same = cur.items.find(i => !i.sent && i.pid === p.id && i.p === pr && JSON.stringify(i.mods) === JSON.stringify(mods) && (i.nota || '') === (nota || ''));
       if (same) same.q += qty; else cur.items.push({ id: uid(), pid: p.id, n: p.name, p: pr, q: qty, mods, nota: nota || '', station: p.station || settings().estaciones[0], by: ME.name });
       DB.put('orders', cur);
-      toast('+ ' + p.name);
+      toast('+ ' + p.name + (promo ? ' · ' + promo.nombre : ''));
     };
     if (p.libre) return ask(p.name, [{ name: 'n', label: 'Descripción', value: '' }, { name: 'p', label: 'Precio', type: 'number', inputmode: 'numeric' }], v => { if (!+v.p) return false; push([], v.n, 1, +v.p); }, 'Agregar');
     if (!groups.length) return push([], '');

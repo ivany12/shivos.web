@@ -148,11 +148,14 @@ VIEWFN.ajustes = el => {
       <div class="grid2"><label>Dirección<input name="dir" value="${esc(s.dir)}"></label><label>Teléfono / WhatsApp<input name="tel" value="${esc(s.tel)}"></label></div>
       <label>Color de la marca<div class="colors">${['#e4572e', '#f1bb00', '#2a9d8f', '#3a86ff', '#8338ec', '#ef476f', '#118ab2', '#111111'].map(c => `<button type="button" class="sw ${c === s.color ? 'on' : ''}" data-col="${c}" style="background:${c}"></button>`).join('')}<input name="color" type="color" value="${esc(s.color)}"></div></label>
       <label>Pie del ticket<input name="pie" value="${esc(s.pie)}"></label>
+      <div class="grid2"><label>Razón social<input name="rs" value="${esc(s.fiscal?.rs || '')}"></label><label>CUIT<input name="cuit" value="${esc(s.fiscal?.cuit || '')}"></label></div>
+      <label>Condición frente al IVA<select name="iva">${['', 'Monotributista', 'Responsable inscripto', 'Exento'].map(x => `<option ${x === (s.fiscal?.iva || '') ? 'selected' : ''}>${x}</option>`).join('')}</select></label>
+      <p class="muted">Factura electrónica (ARCA): próximamente. Con estos datos y tu certificado digital vamos a poder emitir facturas A/B/C desde el cobro.</p>
       <label>Zonas y mesas (una por línea: Nombre, cantidad)<textarea name="zonas" rows="3">${s.zonas.map(z => z.name + ', ' + z.mesas).join('\n')}</textarea></label>
       <label>Estaciones de preparación (una por línea; cada una tiene su comanda y pantalla)<textarea name="estaciones" rows="3">${s.estaciones.join('\n')}</textarea></label>
       <div class="btns"><button class="btn pri">Guardar</button></div></form>`;
     $$('[data-col]', C).forEach(b => b.onclick = () => { $('[name=color]', C).value = b.dataset.col; $$('.sw', C).forEach(x => x.classList.toggle('on', x === b)); document.documentElement.style.setProperty('--acc', b.dataset.col); });
-    saveForm($('#f'), f => ({ local: f.get('local'), dir: f.get('dir'), tel: f.get('tel'), pie: f.get('pie'), color: f.get('color'), estaciones: lines(f, 'estaciones').length ? lines(f, 'estaciones') : ['Cocina'],
+    saveForm($('#f'), f => ({ local: f.get('local'), dir: f.get('dir'), tel: f.get('tel'), pie: f.get('pie'), color: f.get('color'), fiscal: { rs: f.get('rs'), cuit: f.get('cuit'), iva: f.get('iva') }, estaciones: lines(f, 'estaciones').length ? lines(f, 'estaciones') : ['Cocina'],
       zonas: lines(f, 'zonas').map(l => { const [n, c] = l.split(','); return { name: n.trim(), mesas: Math.max(1, Math.min(99, +c || 1)) }; }) }));
   }
   if (ajTab === 'venta') {
@@ -163,10 +166,12 @@ VIEWFN.ajustes = el => {
       <label>Repartidores (uno por línea)<textarea name="repartidores" rows="3">${s.repartidores.join('\n')}</textarea></label>
       <label>Categorías de gastos (una por línea)<textarea name="catGastos" rows="4">${s.catGastos.join('\n')}</textarea></label>
       <label>Propinas sugeridas en la precuenta (% separados por coma)<input name="propinas" value="${s.propinas.join(', ')}"></label>
+      <label>Promociones automáticas (una por línea: Nombre; días; horario; categoría o todas; %)<textarea name="promos" rows="3" placeholder="Happy hour; lun,mar,mie,jue; 18:00-20:00; Cervezas y tragos; 30">${(s.promos || []).map(p => [p.nombre, (p.dias || []).join(','), p.desde ? p.desde + '-' + p.hasta : '', p.cat || 'todas', p.pct].join('; ')).join('\n')}</textarea></label>
       <label class="ck"><input type="checkbox" name="arqueoCiego" ${s.arqueoCiego ? 'checked' : ''}> Arqueo ciego (el cajero no ve el efectivo esperado)</label>
       <div class="btns"><button class="btn pri">Guardar</button></div></form>`;
     saveForm($('#f'), f => ({ medios: lines(f, 'medios'), canales: lines(f, 'canales'), repartidores: lines(f, 'repartidores'), catGastos: lines(f, 'catGastos'), arqueoCiego: !!f.get('arqueoCiego'),
       propinas: f.get('propinas').split(',').map(x => +x.trim()).filter(Boolean),
+      promos: lines(f, 'promos').map(l => { const [nombre, dias, hor, cat, pct] = l.split(';').map(x => (x || '').trim()); const [desde, hasta] = (hor || '').split('-').map(x => x.trim()); return { nombre: nombre || 'Promo', dias: (dias || '').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').split(',').map(x => x.trim().slice(0, 3)).filter(Boolean), desde: desde || '', hasta: hasta || '', cat: cat || 'todas', pct: +pct || 0 }; }).filter(p => p.pct),
       envios: lines(f, 'envios').map(l => { const i = l.lastIndexOf(','); return { zona: (i > 0 ? l.slice(0, i) : l).trim(), precio: +(i > 0 ? l.slice(i + 1) : 0) || 0 }; }) }));
   }
   if (ajTab === 'tienda') {

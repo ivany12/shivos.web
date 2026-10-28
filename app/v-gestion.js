@@ -163,3 +163,37 @@ VIEWFN.reportes = el => {
   $('#d2').onchange = e => { repD2 = e.target.value; render(); };
   $('#csvp') && ($('#csvp').onclick = () => csv([['Producto', 'Cantidad', 'Vendido', 'Costo']].concat(Object.entries(prods).map(([n, v]) => [n, v.q, Math.round(v.t), Math.round(v.costo)])), 'productos-' + repD1 + '_' + repD2));
 };
+
+/* ───────── inicio: el día de un vistazo (para el dueño, desde cualquier lugar) ───────── */
+VIEWFN.inicio = el => {
+  const hoy = dayKey(Date.now()), ayer = dayKey(Date.now() - 86400000), semAnt = dayKey(Date.now() - 7 * 86400000);
+  const os = DB.list('orders');
+  const cerr = d => os.filter(o => o.estado === 'cerrada' && dayKey(o.creado) === d);
+  const tHoy = sum(cerr(hoy), o => orderCalc(o).total), tAyer = sum(cerr(ayer), o => orderCalc(o).total);
+  const abiertas = os.filter(o => o.estado === 'abierta' && o.items.length);
+  const mesas = abiertas.filter(o => o.tipo === 'mesa'), deliv = abiertas.filter(o => o.tipo !== 'mesa');
+  const enCurso = sum(abiertas, o => orderCalc(o).total);
+  const kds = DB.list('kds').filter(k => k.estado === 'pendiente');
+  const demora = kds.length ? Math.max(...kds.map(k => mins(k.t))) : 0;
+  const bajos = DB.list('insumos').filter(i => i.controlar && i.min != null && (i.stock || 0) <= i.min);
+  const res = DB.list('reservas').filter(r => r.fecha === hoy && ['pendiente', 'confirmada'].includes(r.estado)).sort((a, b) => a.hora.localeCompare(b.hora));
+  const turno = DB.list('fichajes').filter(f => !f.out);
+  const caja = openCash();
+  const inbox = DB.list('inbox').filter(i => i.estado === 'nuevo');
+  const top = {}; cerr(hoy).forEach(o => o.items.forEach(i => top[i.n] = (top[i.n] || 0) + i.q));
+  const anul = os.filter(o => o.estado === 'anulada' && o.items.length && dayKey(o.creado) === hoy);
+  const horas = Array(24).fill(0); cerr(hoy).forEach(o => horas[new Date(o.creado).getHours()] += orderCalc(o).total); const mxH = Math.max(1, ...horas);
+  const diff = tAyer ? Math.round((tHoy - tAyer) / tAyer * 100) : null;
+  const saludo = new Date().getHours() < 12 ? 'Buen día' : new Date().getHours() < 20 ? 'Buenas tardes' : 'Buenas noches';
+  el.innerHTML = `<div class="page"><div class="bar"><div><h2>${saludo}, ${esc(ME.name)}</h2><p class="muted">${new Date().toLocaleDateString('es-AR', { weekday: 'long', day: 'numeric', month: 'long' })} · ${caja ? 'caja abierta desde ' + hhmm(caja.abierta) : 'caja cerrada'}</p></div></div>
+    ${inbox.length ? `<a class="card alert" href="#pedidos">🛎 <b>${inbox.length} pedido${inbox.length > 1 ? 's' : ''} online</b> esperando que los aceptes →</a>` : ''}
+    <div class="kpis"><div class="kpi"><small>Vendido hoy</small><b>${money(tHoy)}</b>${diff != null ? `<span class="${diff >= 0 ? 'ok' : 'bad'}">${diff >= 0 ? '▲' : '▼'} ${Math.abs(diff)}% vs ayer</span>` : ''}</div>
+      <div class="kpi"><small>Ventas cerradas</small><b>${cerr(hoy).length}</b><span class="muted">ticket ${money(cerr(hoy).length ? tHoy / cerr(hoy).length : 0)}</span></div>
+      <div class="kpi"><small>En curso ahora</small><b>${money(enCurso)}</b><span class="muted">${mesas.length} mesa${mesas.length === 1 ? "" : "s"} · ${deliv.length} pedido${deliv.length === 1 ? "" : "s"}</span></div>
+      <div class="kpi"><small>Cocina</small><b>${kds.length}</b><span class="${demora > 20 ? 'bad' : 'muted'}">${kds.length ? 'la más vieja: ' + demora + ' min' : 'al día'}</span></div></div>
+    <div class="two"><div class="card"><h3>Ventas por hora (hoy)</h3><div class="vbars sm">${horas.map((v, h) => `<div title="${h}h ${money(v)}"><i style="height:${v / mxH * 100}%"></i><small>${h}</small></div>`).slice(10).join('')}</div>
+        <h3>Lo más vendido hoy</h3>${Object.entries(top).sort((a, b) => b[1] - a[1]).slice(0, 6).map(([n, q]) => `<div class="row"><span>${esc(n)}</span><b>${q}</b></div>`).join('') || '<p class="muted">Todavía nada.</p>'}</div>
+      <div><div class="card"><h3>Reservas de hoy</h3>${res.map(r => `<div class="row"><span><b>${esc(r.hora)}</b> ${esc(r.nombre)}</span><span class="muted">${r.pax} p${r.mesa ? ' · mesa ' + esc(r.mesa) : ''}</span></div>`).join('') || '<p class="muted">Sin reservas.</p>'}</div>
+        <div class="card"><h3>En turno</h3>${turno.map(f => `<div class="row"><span>${esc(DB.get('users', f.user)?.name || f.name)}</span><span class="muted">desde ${hhmm(f.in)}</span></div>`).join('') || '<p class="muted">Nadie fichó entrada.</p>'}</div>
+        <div class="card"><h3>Alertas</h3>${bajos.map(i => `<div class="row"><span>📦 ${esc(i.name)}</span><span class="bad">${num(i.stock)} ${esc(i.unit)}</span></div>`).join('')}${anul.map(o => `<div class="row"><span>✕ Anulado ${esc(orderLabel(o))}</span><span class="muted">${esc(o.motivo || '')}</span></div>`).join('')}${!bajos.length && !anul.length ? '<p class="muted">Todo en orden. 👌</p>' : ''}</div></div></div></div>`;
+};

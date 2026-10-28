@@ -77,6 +77,7 @@ function between(c, field, d1, d2, cb) {
 
 /* ───────── roles y permisos ───────── */
 const VIEWS = {
+  inicio: ['Inicio', 'M3 11l9-7 9 7v9H3zM9 20v-6h6v6'],
   salon: ['Salón', 'M3 4h18v4H3zM5 8v12M19 8v12M8 12h8'],
   pedidos: ['Pedidos', 'M4 5h16v14H4zM8 9h8M8 13h5'],
   cocina: ['Cocina', 'M6 13a6 6 0 0 1 12 0v6H6zM12 4v3'],
@@ -93,7 +94,7 @@ const VIEWS = {
 };
 const ROLES = {
   dueno: { name: 'Dueño', views: Object.keys(VIEWS), cobrar: 1, anular: 1, desc: 1, stock: 1 },
-  encargado: { name: 'Encargado', views: ['salon', 'pedidos', 'cocina', 'reservas', 'caja', 'ventas', 'clientes', 'stock', 'compras', 'reportes', 'productos', 'personal'], cobrar: 1, anular: 1, desc: 1, stock: 1 },
+  encargado: { name: 'Encargado', views: ['inicio', 'salon', 'pedidos', 'cocina', 'reservas', 'caja', 'ventas', 'clientes', 'stock', 'compras', 'reportes', 'productos', 'personal'], cobrar: 1, anular: 1, desc: 1, stock: 1 },
   cajero: { name: 'Cajero', views: ['salon', 'pedidos', 'cocina', 'reservas', 'caja', 'ventas', 'clientes'], cobrar: 1, anular: 0, desc: 1 },
   mozo: { name: 'Mozo', views: ['salon', 'pedidos', 'reservas'], cobrar: 0, anular: 0, desc: 0 },
   cocina: { name: 'Cocina', views: ['cocina', 'stock'], cobrar: 0, anular: 0, desc: 0 }
@@ -108,7 +109,7 @@ const DEFAULT_SETTINGS = {
   canales: ['Mostrador', 'Teléfono/WhatsApp', 'PedidosYa', 'Rappi'], repartidores: [],
   envios: [{ zona: 'Cerca (hasta 10 cuadras)', precio: 1500 }, { zona: 'Lejos', precio: 2500 }],
   catGastos: ['Servicios', 'Alquiler', 'Sueldos', 'Limpieza', 'Mantenimiento', 'Impuestos', 'Publicidad', 'Otros'],
-  propinas: [10, 15], arqueoCiego: false,
+  propinas: [10, 15], arqueoCiego: false, promos: [], fiscal: {},
   tienda: { activa: true, retiro: true, delivery: true, mesa: true, minimo: 0, mensaje: '' }
 };
 
@@ -148,6 +149,12 @@ function moveStock(ins, qty, tipo, ref, costo) {
   if (costo != null && qty > 0) patch.costo = costo;
   DB.put('insumos', patch);
   DB.put('stockmov', { ins, qty, tipo, ref: ref || '', t: Date.now(), por: ME?.name || '' });
+}
+// promociones automáticas por día y horario (happy hour, almuerzo, etc.)
+const DIAS = ['dom', 'lun', 'mar', 'mie', 'jue', 'vie', 'sab'];
+function promoFor(p, t = Date.now()) {
+  const d = new Date(t), hm = String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0');
+  return (settings().promos || []).find(pr => pr.pct && (!pr.dias?.length || pr.dias.includes(DIAS[d.getDay()])) && (!pr.desde || (pr.desde <= pr.hasta ? hm >= pr.desde && hm < pr.hasta : hm >= pr.desde || hm < pr.hasta)) && (!pr.cat || pr.cat === 'todas' || pr.cat === p.cat || pr.cat.toLowerCase() === (DB.get('cats', p.cat)?.name || '').toLowerCase()));
 }
 const saldoCliente = id => sum(DB.list('ctamov').filter(m => m.cli === id), m => m.monto);
 
@@ -253,7 +260,10 @@ function bars(rows, total) {
 function applyTheme() {
   const s = settings();
   const r = document.documentElement;
-  r.style.setProperty('--acc', s.color || '#e4572e');
+  const col = s.color || '#e4572e';
+  r.style.setProperty('--acc', col);
+  const [R, G, B] = [1, 3, 5].map(i => parseInt(col.slice(i, i + 2), 16) / 255).map(v => v <= .03928 ? v / 12.92 : ((v + .055) / 1.055) ** 2.4);
+  r.style.setProperty('--on-acc', .2126 * R + .7152 * G + .0722 * B > .45 ? '#1d1c1a' : '#ffffff');
   const dark = local.get('theme') === 'dark' || (local.get('theme') == null && matchMedia('(prefers-color-scheme: dark)').matches);
   r.dataset.theme = dark ? 'dark' : 'light';
   document.title = (s.local || 'Morfi') + ' · Morfi';
