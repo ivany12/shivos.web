@@ -55,6 +55,31 @@ a { color: inherit; }
 .stand .tag { position: absolute; left: -10px; bottom: 30px; background: var(--y); color: #000; font-family: var(--bc); font-weight: 700; font-size: 13px; letter-spacing: 3px; text-transform: uppercase; padding: 8px 14px; transform: rotate(-2deg); }
 .checker { height: 18px; background: repeating-linear-gradient(90deg, var(--y) 0 18px, transparent 18px 36px); }
 
+/* galería */
+.gal-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 24px; flex-wrap: wrap; }
+.gal-ctrl { display: flex; align-items: center; gap: 14px; }
+.gal-count { font-family: var(--bb); font-size: 22px; letter-spacing: 2px; color: var(--mute); min-width: 74px; text-align: right; }
+.gal-count b { color: var(--y); font-weight: 400; }
+.gal-btn { width: 52px; height: 52px; display: grid; place-items: center; background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.35); cursor: pointer; font-size: 22px; transition: background .2s, color .2s, border-color .2s; }
+.gal-btn:hover:not([disabled]) { background: var(--y); color: #000; border-color: var(--y); }
+.gal-btn[disabled] { opacity: .3; cursor: default; }
+.gal-track { display: flex; gap: 20px; overflow-x: auto; scroll-snap-type: x mandatory; scroll-behavior: smooth; margin-top: 44px;
+  padding: 0 max(40px, calc((100vw - 1180px) / 2 + 40px)) 6px; scroll-padding: 0 max(40px, calc((100vw - 1180px) / 2 + 40px)); scrollbar-width: none; }
+.gal-track::-webkit-scrollbar { display: none; }
+.gal-item { flex: 0 0 auto; height: min(600px, 72vh); aspect-ratio: 3 / 4; scroll-snap-align: start; position: relative; margin: 0; cursor: zoom-in; overflow: hidden; background: #111; }
+.gal-item img { width: 100%; height: 100%; object-fit: cover; transition: transform .6s ease; }
+.gal-item:hover img { transform: scale(1.04); }
+.gal-item figcaption { position: absolute; left: 0; right: 0; bottom: 0; padding: 40px 18px 16px; background: linear-gradient(transparent, rgba(0,0,0,.85)); font-family: var(--bc); font-weight: 700; font-size: 14px; letter-spacing: 3px; text-transform: uppercase; color: #fff; }
+.gal-item figcaption::before { content: ''; display: inline-block; width: 18px; height: 3px; background: var(--y); vertical-align: middle; margin-right: 10px; }
+.lb { position: fixed; inset: 0; z-index: 100; background: rgba(0,0,0,.94); display: none; align-items: center; justify-content: center; padding: 60px 70px; }
+.lb.on { display: flex; }
+.lb img { max-width: 100%; max-height: 100%; object-fit: contain; }
+.lb button { position: absolute; background: none; border: 0; color: #fff; font-size: 34px; cursor: pointer; padding: 12px 16px; line-height: 1; }
+.lb button:hover { color: var(--y); }
+.lb .x { top: 10px; right: 14px; }
+.lb .lp { left: 6px; top: 50%; transform: translateY(-50%); }
+.lb .ln { right: 6px; top: 50%; transform: translateY(-50%); }
+
 /* números */
 .sec { padding: 110px 0; }
 .nums { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 56px; border-top: 1px solid var(--line); }
@@ -133,6 +158,10 @@ textarea.fi { resize: vertical; min-height: 96px; line-height: 1.5; }
 
 @media (max-width: 900px) {
   .w { padding: 0 20px; }
+  .gal-track { padding: 0 20px 6px; scroll-padding: 0 20px; gap: 12px; margin-top: 32px; }
+  .gal-item { height: auto; width: 78vw; }
+  .gal-btn { width: 44px; height: 44px; }
+  .lb { padding: 50px 10px; }
   .hero .w, .setup, .star .w, .form-grid { grid-template-columns: 1fr; gap: 48px; }
   .hero .w { padding-top: 44px; padding-bottom: 64px; }
   .stand { max-width: 420px; margin-right: 16px; }
@@ -155,6 +184,11 @@ textarea.fi { resize: vertical; min-height: 96px; line-height: 1.5; }
   .back span { display: none; }
 }
 @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } .js .rv { opacity: 1; transform: none; transition: none; } .btn { transition: none; } }
+
+/* aire entre líneas para acentos */
+.h2 { line-height: 1.02; }
+.hero h1 { line-height: .95; }
+.star h2 { line-height: 1; }
 </style>
 </head>
 <body>
@@ -199,6 +233,32 @@ textarea.fi { resize: vertical; min-height: 96px; line-height: 1.5; }
     </div>
   </div>
 </section>
+
+<section class="sec gal" style="padding-top:0" aria-label="Fotos de eventos">
+  <div class="w gal-head rv">
+    <div>
+      <div class="k">Galería</div>
+      <h2 class="h2">Así nos<br>ven llegar</h2>
+    </div>
+    <div class="gal-ctrl">
+      <span class="gal-count" id="gal-count"><b>01</b> / 03</span>
+      <button class="gal-btn" id="gal-prev" type="button" aria-label="Foto anterior">←</button>
+      <button class="gal-btn" id="gal-next" type="button" aria-label="Foto siguiente">→</button>
+    </div>
+  </div>
+  <div class="gal-track" id="gal-track">
+    <figure class="gal-item"><img src="img/eventos/stand-dia.webp" alt="Stand de Shivo's de día, con el menú a la vista" width="1000" height="1333" loading="lazy" decoding="async"><figcaption>El stand</figcaption></figure>
+    <figure class="gal-item"><img src="img/eventos/feria-ivan.webp" alt="Hamburguesa con papas noisettes en la caja de Shivo's, frente al stand" width="787" height="1400" loading="lazy" decoding="async"><figcaption>Recién salida</figcaption></figure>
+    <figure class="gal-item"><img src="img/eventos/stand.webp" alt="Stand de Shivo's de noche, iluminado" width="600" height="800" loading="lazy" decoding="async"><figcaption>De noche también</figcaption></figure>
+  </div>
+</section>
+
+<div class="lb" id="lb" role="dialog" aria-modal="true" aria-label="Foto ampliada">
+  <img id="lb-img" alt="">
+  <button class="x" type="button" id="lb-x" aria-label="Cerrar">✕</button>
+  <button class="lp" type="button" id="lb-p" aria-label="Anterior">←</button>
+  <button class="ln" type="button" id="lb-n" aria-label="Siguiente">→</button>
+</div>
 
 <section class="sec" style="padding-top:0">
   <div class="w setup">
@@ -296,6 +356,43 @@ textarea.fi { resize: vertical; min-height: 96px; line-height: 1.5; }
     var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('in'); io.unobserve(e.target); } }); }, { threshold: .12 });
     els.forEach(function(el){ io.observe(el); });
   } else { els.forEach(function(el){ el.classList.add('in'); }); }
+
+  // Galería: carrusel + lightbox
+  (function(){
+    var track = document.getElementById('gal-track'); if (!track) return;
+    var items = [].slice.call(track.querySelectorAll('.gal-item'));
+    var prev = document.getElementById('gal-prev'), next = document.getElementById('gal-next'), count = document.getElementById('gal-count');
+    var pad = function(n){ return (n < 10 ? '0' : '') + n; };
+    function idx(){ var x = track.scrollLeft, best = 0, d = 1e9; items.forEach(function(it, i){ var dd = Math.abs(it.offsetLeft - items[0].offsetLeft - x); if (dd < d) { d = dd; best = i; } }); return best; }
+    function upd(){
+      var i = idx(), end = track.scrollLeft + track.clientWidth >= track.scrollWidth - 4;
+      if (end) i = items.length - 1;
+      count.innerHTML = '<b>' + pad(i + 1) + '</b> / ' + pad(items.length);
+      prev.disabled = track.scrollLeft <= 4; next.disabled = end;
+    }
+    function go(d){ var i = Math.max(0, Math.min(items.length - 1, idx() + d)); track.scrollTo({ left: items[i].offsetLeft - items[0].offsetLeft, behavior: 'smooth' }); }
+    prev.addEventListener('click', function(){ go(-1); });
+    next.addEventListener('click', function(){ go(1); });
+    track.addEventListener('scroll', function(){ window.requestAnimationFrame(upd); }, { passive: true });
+    window.addEventListener('resize', upd); upd();
+
+    var lb = document.getElementById('lb'), img = document.getElementById('lb-img'), cur = 0;
+    function show(i){ cur = (i + items.length) % items.length; var s = items[cur].querySelector('img'); img.src = s.src; img.alt = s.alt; }
+    function open(i){ show(i); lb.classList.add('on'); document.body.style.overflow = 'hidden'; document.getElementById('lb-x').focus(); }
+    function close(){ lb.classList.remove('on'); document.body.style.overflow = ''; }
+    items.forEach(function(it, i){ it.addEventListener('click', function(){ open(i); }); });
+    document.getElementById('lb-x').addEventListener('click', close);
+    document.getElementById('lb-p').addEventListener('click', function(){ show(cur - 1); });
+    document.getElementById('lb-n').addEventListener('click', function(){ show(cur + 1); });
+    lb.addEventListener('click', function(e){ if (e.target === lb) close(); });
+    document.addEventListener('keydown', function(e){
+      if (!lb.classList.contains('on')) return;
+      if (e.key === 'Escape') close(); else if (e.key === 'ArrowLeft') show(cur - 1); else if (e.key === 'ArrowRight') show(cur + 1);
+    });
+    var sx = null;
+    lb.addEventListener('touchstart', function(e){ sx = e.touches[0].clientX; }, { passive: true });
+    lb.addEventListener('touchend', function(e){ if (sx === null) return; var dx = e.changedTouches[0].clientX - sx; if (Math.abs(dx) > 40) show(cur + (dx < 0 ? 1 : -1)); sx = null; });
+  })();
 
   // Botón del hero: scroll al formulario y foco en el primer campo
   document.getElementById('go-form').addEventListener('click', function(e){
