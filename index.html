@@ -155,10 +155,19 @@
 // Foto de inicio fija y liviana (la 10) para que cargue rápido; después rota
 (function(){var i=10;window.__heroIdx=i-1;var m=window.matchMedia('(max-aspect-ratio: 1/1)').matches;var u='img/hero/'+(i<10?'0':'')+i+(m?'-m':'-w')+'.webp';var l=document.createElement('link');l.rel='preload';l.as='image';l.href=u;l.setAttribute('fetchpriority','high');document.head.appendChild(l);var st=document.createElement('style');st.textContent='.hero-bg{background-image:url('+u+')}';document.head.appendChild(st);})();
 </script>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Barlow:wght@400;500&family=Playfair+Display:wght@800&display=swap" media="print" onload="this.media='all'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:ital,wght@0,400;0,600;0,700;0,900;1,400;1,700&family=Barlow:wght@400;500&family=Playfair+Display:wght@800&display=swap"></noscript>
+<style>
+/* Tipografías propias (antes venían de Google Fonts) */
+@font-face{font-family:'Bebas Neue';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/bebas-neue-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/barlow-condensed-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:600;font-display:swap;src:url('fonts/barlow-condensed-latin-600-normal.woff2') format('woff2')}
+@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/barlow-condensed-latin-700-normal.woff2') format('woff2')}
+@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:900;font-display:swap;src:url('fonts/barlow-condensed-latin-900-normal.woff2') format('woff2')}
+@font-face{font-family:'Barlow Condensed';font-style:italic;font-weight:400;font-display:swap;src:url('fonts/barlow-condensed-latin-400-italic.woff2') format('woff2')}
+@font-face{font-family:'Barlow Condensed';font-style:italic;font-weight:700;font-display:swap;src:url('fonts/barlow-condensed-latin-700-italic.woff2') format('woff2')}
+@font-face{font-family:'Barlow';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/barlow-latin-400-normal.woff2') format('woff2')}
+@font-face{font-family:'Barlow';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/barlow-latin-500-normal.woff2') format('woff2')}
+@font-face{font-family:'Playfair Display';font-style:normal;font-weight:800;font-display:swap;src:url('fonts/playfair-display-latin-800-normal.woff2') format('woff2')}
+</style>
 <style>
 :root {
   --yellow: #f1bb00;
