@@ -43,47 +43,110 @@
 
   <!-- Schema.org Restaurant JSON-LD -->
   <script type="application/ld+json">
-  {
-    "@context": "https://schema.org",
-    "@type": "Restaurant",
-    "name": "Shivo's",
-    "description": "La única hamburguesería con papas noisettes en Villa del Parque. Hamburguesas de autor desde 2023.",
-    "url": "https://shivos.com.ar",
-    "telephone": "+5491130455484",
-    "address": {
-      "@type": "PostalAddress",
-      "streetAddress": "Tinogasta 3239",
-      "addressLocality": "Villa del Parque",
-      "addressRegion": "CABA",
-      "postalCode": "1417",
-      "addressCountry": "AR"
+{
+  "@context": "https://schema.org",
+  "@type": "Restaurant",
+  "name": "Shivo's",
+  "description": "La única hamburguesería con papas noisettes en Villa del Parque. Hamburguesas de autor desde 2023.",
+  "url": "https://shivos.com.ar",
+  "telephone": "+5491130455484",
+  "address": {
+    "@type": "PostalAddress",
+    "streetAddress": "Tinogasta 3239",
+    "addressLocality": "Villa del Parque",
+    "addressRegion": "CABA",
+    "postalCode": "1417",
+    "addressCountry": "AR"
+  },
+  "geo": {
+    "@type": "GeoCoordinates",
+    "latitude": -34.6008573,
+    "longitude": -58.4964375
+  },
+  "openingHoursSpecification": [
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Tuesday",
+        "Wednesday",
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ],
+      "opens": "12:00",
+      "closes": "15:30"
     },
-    "geo": {
-      "@type": "GeoCoordinates",
-      "latitude": -34.6008573,
-      "longitude": -58.4964375
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Tuesday",
+        "Wednesday"
+      ],
+      "opens": "19:00",
+      "closes": "23:30"
     },
-    "openingHoursSpecification": [
-      { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Tuesday","Wednesday","Thursday","Friday","Saturday"], "opens": "12:00", "closes": "15:30" },
-      { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Tuesday","Wednesday"], "opens": "19:00", "closes": "23:30" },
-      { "@type": "OpeningHoursSpecification", "dayOfWeek": ["Thursday","Friday","Saturday"], "opens": "19:00", "closes": "00:00" },
-      { "@type": "OpeningHoursSpecification", "dayOfWeek": "Sunday", "opens": "19:00", "closes": "23:00" }
-    ],
-    "servesCuisine": "Hamburguesas",
-    "areaServed": { "@type": "GeoCircle", "geoMidpoint": { "@type": "GeoCoordinates", "latitude": -34.6008573, "longitude": -58.4964375 }, "geoRadius": 3000 },
-    "priceRange": "$$",
-    "sameAs": [
-      "https://www.instagram.com/shivosburger",
-      "https://www.tiktok.com/@shivosburger",
-      "https://www.twitter.com/shivosburger"
-    ],
-    "hasMap": "https://maps.google.com/?q=Shivo%27s+Tinogasta+3239+Villa+del+Parque",
-    "menu": "https://menu.fu.do/shivos",
-    "acceptsReservations": false,
-    "image": "https://shivos.com.ar/img/og.jpg",
-    "hasMenu": "https://menu.fu.do/shivos"
-  }
-  </script>
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": [
+        "Thursday",
+        "Friday",
+        "Saturday"
+      ],
+      "opens": "19:00",
+      "closes": "00:00"
+    },
+    {
+      "@type": "OpeningHoursSpecification",
+      "dayOfWeek": "Sunday",
+      "opens": "19:00",
+      "closes": "23:00"
+    }
+  ],
+  "servesCuisine": "Hamburguesas",
+  "areaServed": [
+    {
+      "@type": "GeoCircle",
+      "geoMidpoint": {
+        "@type": "GeoCoordinates",
+        "latitude": -34.6008573,
+        "longitude": -58.4964375
+      },
+      "geoRadius": 3000
+    },
+    {
+      "@type": "AdministrativeArea",
+      "name": "Villa del Parque"
+    },
+    {
+      "@type": "AdministrativeArea",
+      "name": "Villa Devoto"
+    },
+    {
+      "@type": "AdministrativeArea",
+      "name": "Villa Santa Rita"
+    },
+    {
+      "@type": "AdministrativeArea",
+      "name": "Agronomía"
+    },
+    {
+      "@type": "AdministrativeArea",
+      "name": "Monte Castro"
+    }
+  ],
+  "priceRange": "$$",
+  "sameAs": [
+    "https://www.instagram.com/shivosburger",
+    "https://www.tiktok.com/@shivosburger",
+    "https://www.twitter.com/shivosburger"
+  ],
+  "hasMap": "https://maps.google.com/?q=Shivo%27s+Tinogasta+3239+Villa+del+Parque",
+  "menu": "https://menu.fu.do/shivos",
+  "acceptsReservations": false,
+  "image": "https://shivos.com.ar/img/og.jpg",
+  "hasMenu": "https://menu.fu.do/shivos"
+}
+</script>
 <script type="application/ld+json">
 {
   "@context": "https://schema.org",
@@ -111,6 +174,14 @@
       "acceptedAnswer": {
         "@type": "Answer",
         "text": "Sí. Tenemos delivery propio en un radio de 3 km alrededor del local, sin apps y sin comisiones. Podés pedir en la tienda online de Shivo's o por WhatsApp al 11 3045-5484, o retirar en el local."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "¿A qué barrios hacen delivery?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Llegamos a Villa del Parque, Villa Devoto, Villa Santa Rita, Agronomía y Monte Castro, dentro de un radio de 3 km alrededor del local. Es delivery propio, sin apps y sin comisiones."
       }
     },
     {
@@ -2349,7 +2420,7 @@ footer.fx { background: #000 !important; border-top: 0 !important; padding: 0 !i
       <div class="section-divider" style="margin: 24px auto;"></div>
       <p class="order-desc">
         Si pagás más es porque querés.<br>
-        Tenemos delivery propio en un radio de 3 km. Sin apps, sin comisiones.<br>Mejores precios, mejores promociones, mejor atención.
+        Tenemos delivery propio en un radio de 3 km: Villa del Parque, Villa Devoto, Villa Santa Rita, Agronomía y Monte Castro. Sin apps, sin comisiones.<br>Mejores precios, mejores promociones, mejor atención.
       </p>
     </div>
 
@@ -2397,7 +2468,7 @@ footer.fx { background: #000 !important; border-top: 0 !important; padding: 0 !i
   <div class="faq-inner">
     <div class="section-eyebrow">Preguntas frecuentes</div>
     <h2 class="section-title">LO QUE <span>SIEMPRE PREGUNTAN</span></h2>
-    <div class="faq-list"><details class="faq-item"><summary>¿Dónde queda Shivo's?</summary><p>Shivo's está en Tinogasta 3239, en Villa del Parque, Ciudad de Buenos Aires. Es un solo local, sin sucursales.</p></details><details class="faq-item"><summary>¿Qué días abren?</summary><p>Abrimos de martes a domingo. Martes y miércoles de 12 a 15:30 y de 19 a 23:30; jueves a sábado de 12 a 15:30 y de 19 a 00; domingo de 19 a 23. Los lunes cerramos.</p></details><details class="faq-item"><summary>¿Hacen delivery?</summary><p>Sí. Tenemos delivery propio en un radio de 3 km alrededor del local, sin apps y sin comisiones. Podés pedir en la tienda online de Shivo's o por WhatsApp al 11 3045-5484, o retirar en el local.</p></details><details class="faq-item"><summary>¿Cuál es la hamburguesa más pedida?</summary><p>La Chipi Chipi: cheddar x4, cebolla crispy, panceta y salsa Shivo's.</p></details><details class="faq-item"><summary>¿Las hamburguesas vienen con papas?</summary><p>Sí. El precio de cada hamburguesa ya incluye papas noisettes.</p></details><details class="faq-item"><summary>¿Se puede pedir en grupo?</summary><p>Sí. Con el pedido grupal armás un link, cada uno elige lo suyo desde el celu y uno solo hace el pedido.</p></details><details class="faq-item"><summary>¿Hacen eventos?</summary><p>Sí. Llevamos stand y catering a festivales, eventos corporativos, cumpleaños y streaming. Escribinos desde la página de eventos.</p></details></div>
+    <div class="faq-list"><details class="faq-item"><summary>¿Dónde queda Shivo's?</summary><p>Shivo's está en Tinogasta 3239, en Villa del Parque, Ciudad de Buenos Aires. Es un solo local, sin sucursales.</p></details><details class="faq-item"><summary>¿Qué días abren?</summary><p>Abrimos de martes a domingo. Martes y miércoles de 12 a 15:30 y de 19 a 23:30; jueves a sábado de 12 a 15:30 y de 19 a 00; domingo de 19 a 23. Los lunes cerramos.</p></details><details class="faq-item"><summary>¿Hacen delivery?</summary><p>Sí. Tenemos delivery propio en un radio de 3 km alrededor del local, sin apps y sin comisiones. Podés pedir en la tienda online de Shivo's o por WhatsApp al 11 3045-5484, o retirar en el local.</p></details><details class="faq-item"><summary>¿A qué barrios hacen delivery?</summary><p>Llegamos a Villa del Parque, Villa Devoto, Villa Santa Rita, Agronomía y Monte Castro, dentro de un radio de 3 km alrededor del local. Es delivery propio, sin apps y sin comisiones.</p></details><details class="faq-item"><summary>¿Cuál es la hamburguesa más pedida?</summary><p>La Chipi Chipi: cheddar x4, cebolla crispy, panceta y salsa Shivo's.</p></details><details class="faq-item"><summary>¿Las hamburguesas vienen con papas?</summary><p>Sí. El precio de cada hamburguesa ya incluye papas noisettes.</p></details><details class="faq-item"><summary>¿Se puede pedir en grupo?</summary><p>Sí. Con el pedido grupal armás un link, cada uno elige lo suyo desde el celu y uno solo hace el pedido.</p></details><details class="faq-item"><summary>¿Hacen eventos?</summary><p>Sí. Llevamos stand y catering a festivales, eventos corporativos, cumpleaños y streaming. Escribinos desde la página de eventos.</p></details></div>
   </div>
 </section>
 
