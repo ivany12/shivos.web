@@ -83,7 +83,7 @@
 <link rel="preload" href="fonts/highvoltage.woff2" as="font" type="font/woff2" crossorigin>
 <script>
 // Foto de inicio al azar por visitante: se elige acá para precargarla de entrada
-(function(){var i=Math.floor(Math.random()*15)+1;window.__heroIdx=i-1;var m=window.matchMedia('(max-aspect-ratio: 1/1)').matches;var l=document.createElement('link');l.rel='preload';l.as='image';l.href='img/hero/'+(i<10?'0':'')+i+(m?'-m':'-w')+'.webp';document.head.appendChild(l);})();
+(function(){var i=Math.floor(Math.random()*15)+1;window.__heroIdx=i-1;var m=window.matchMedia('(max-aspect-ratio: 1/1)').matches;var u='img/hero/'+(i<10?'0':'')+i+(m?'-m':'-w')+'.webp';var l=document.createElement('link');l.rel='preload';l.as='image';l.href=u;l.setAttribute('fetchpriority','high');document.head.appendChild(l);var st=document.createElement('style');st.textContent='.hero-bg{background-image:url('+u+')}';document.head.appendChild(st);})();
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
