@@ -507,6 +507,29 @@ nav {
 .bd-close { position: absolute; top: 14px; right: 14px; width: 48px; height: 48px; border-radius: 50%; border: 2px solid rgba(255,255,255,.7); background: rgba(0,0,0,.6); color: #fff; font-size: 30px; line-height: 1; cursor: pointer; }
 @media (max-width: 600px) { .bd-txt { font-size: 20px; } .bd-bar { gap: 10px; padding: 10px 46px 10px 14px; } }
 
+/* ── RULETA "GIRÁ Y GANÁ" ── */
+.rl-fab { position: fixed; right: 16px; bottom: 16px; z-index: 150; display: none; background: var(--yellow); color: #000; border: 0; border-radius: 999px; padding: 12px 20px; font-family: 'Bebas Neue', sans-serif; font-size: 18px; letter-spacing: 2px; cursor: pointer; box-shadow: 0 6px 20px rgba(0,0,0,.5); }
+.rl-fab.on { display: inline-flex; }
+.bd-bar.on ~ .rl-fab { bottom: 96px; }
+.rl-modal { display: none; position: fixed; inset: 0; z-index: 10001; background: rgba(0,0,0,.92); align-items: center; justify-content: center; padding: 16px; overflow-y: auto; }
+.rl-modal.on { display: flex; }
+.rl-box { position: relative; width: 100%; max-width: 460px; text-align: center; padding: 28px 18px 24px; background: #0a0a0a; border: 2px solid var(--yellow); }
+.rl-close { position: absolute; top: 8px; right: 8px; width: 44px; height: 44px; border-radius: 50%; border: 0; background: transparent; color: #fff; font-size: 30px; line-height: 1; cursor: pointer; }
+.rl-kick { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 14px; letter-spacing: 4px; color: var(--yellow); text-transform: uppercase; }
+.rl-title { font-family: 'HighVoltage', 'Bebas Neue', sans-serif; font-size: clamp(34px, 9vw, 48px); line-height: .95; color: #fff; margin: 6px 0 14px; }
+.rl-wheelwrap { position: relative; width: min(82vw, 340px); aspect-ratio: 1; margin: 0 auto 16px; }
+.rl-pointer { position: absolute; top: -10px; left: 50%; width: 0; height: 0; transform: translateX(-50%); border-left: 14px solid transparent; border-right: 14px solid transparent; border-top: 26px solid #fff; z-index: 2; filter: drop-shadow(0 2px 3px rgba(0,0,0,.6)); }
+.rl-canvas { width: 100%; height: 100%; display: block; border-radius: 50%; transition: transform 5.2s cubic-bezier(.12,.7,.08,1); box-shadow: 0 0 0 6px var(--yellow), 0 10px 40px rgba(0,0,0,.6); }
+.rl-btn { display: block; width: 100%; background: var(--yellow); color: #000; border: 0; padding: 16px; font-family: 'HighVoltage', 'Bebas Neue', sans-serif; font-size: 28px; letter-spacing: 2px; cursor: pointer; text-decoration: none; }
+.rl-btn[disabled] { opacity: .5; cursor: default; }
+.rl-btn.alt { background: transparent; color: #fff; border: 1px solid rgba(255,255,255,.4); font-size: 20px; padding: 12px; margin-top: 10px; font-family: 'Bebas Neue', sans-serif; }
+.rl-res { display: none; }
+.rl-res.on { display: block; }
+.rl-premio { font-family: 'Bebas Neue', sans-serif; font-size: clamp(44px, 12vw, 64px); color: var(--yellow); line-height: 1; margin: 8px 0; }
+.rl-code { display: inline-block; font-family: 'Bebas Neue', sans-serif; font-size: 40px; letter-spacing: 6px; color: #000; background: var(--yellow); padding: 8px 20px; margin: 6px 0 10px; }
+.rl-note { font-family: 'Barlow', sans-serif; font-size: 14px; color: #cfc8b9; margin: 0 0 16px; }
+@media (prefers-reduced-motion: reduce) { .rl-canvas { transition-duration: .4s; } }
+
 /* ── PEDIDOS BANNER ── */
 .order-banner {
   background: var(--yellow);
@@ -2841,6 +2864,135 @@ if('IntersectionObserver' in window){var o=new IntersectionObserver(function(e){
     document.getElementById('bdSrcD').srcset = 'img/bd/beautiful-day-d.webp';
     document.getElementById('bdImg').src = 'img/bd/beautiful-day-m.webp';
     setTimeout(function(){ modal.classList.add('on'); document.documentElement.style.overflow = 'hidden'; }, 700);
+  } catch(e) {}
+})();
+</script>
+<!-- RULETA "GIRÁ Y GANÁ". Se edita todo en RULETA_CONFIG. Vista previa: ?ruleta=1 -->
+<button class="rl-fab" id="rlFab" type="button">GIRÁ Y GANÁ</button>
+<div class="rl-modal" id="rlModal" role="dialog" aria-modal="true" aria-label="Girá y ganá un descuento">
+  <div class="rl-box">
+    <button class="rl-close" id="rlClose" type="button" aria-label="Cerrar">×</button>
+    <div class="rl-kick">Shivo's</div>
+    <div class="rl-title">GIRÁ Y GANÁ UN DESCUENTO</div>
+    <div class="rl-play" id="rlPlay">
+      <div class="rl-wheelwrap"><div class="rl-pointer"></div><canvas class="rl-canvas" id="rlCanvas" width="680" height="680"></canvas></div>
+      <button class="rl-btn" id="rlSpin" type="button">GIRAR</button>
+    </div>
+    <div class="rl-res" id="rlRes">
+      <div class="rl-kick" id="rlKick">Ganaste</div>
+      <div class="rl-premio" id="rlPremio"></div>
+      <div class="rl-code" id="rlCode"></div>
+      <p class="rl-note" id="rlNote"></p>
+      <a class="rl-btn" id="rlOrder" href="https://menu.fu.do/shivos" target="_blank" rel="noopener">PEDIR AHORA →</a>
+      <button class="rl-btn alt" id="rlCopy" type="button">COPIAR CÓDIGO</button>
+    </div>
+  </div>
+</div>
+<script>
+/* ═══ CONFIGURACIÓN DE LA RULETA (ejemplo: cambiar premios y códigos antes de publicar) ═══ */
+var RULETA_CONFIG = {
+  activa: true,
+  hasta: '2026-12-31',                  // último día en que se muestra (se apaga sola después)
+  diasSinRuleta: ['Mon','Fri','Sat'],   // días en que NO se muestra (Mon=lunes, Fri=viernes, Sat=sábado)
+  tienda: 'https://menu.fu.do/shivos',   // el botón PEDIR AHORA va a tienda + ?coupon=CODIGO
+  demoraMs: 6000,                       // cuánto espera el pop-up automático
+  valido: 'Válido hasta el 31/12/2026', // texto que ve el cliente
+  premios: [                            // peso = probabilidad relativa (suman 100 = porcentaje)
+    { id: 'p5',   texto: '5%',  linea2: 'OFF', codigo: 'SHIVOS5',  peso: 35, fondo: '#f1bb00', letra: '#000' },
+    { id: 'p10',  texto: '10%', linea2: 'OFF', codigo: 'SHIVOS10', peso: 20, fondo: '#141414', letra: '#f1bb00' },
+    { id: 'p15',  texto: '15%', linea2: 'OFF', codigo: 'SHIVOS15', peso: 10, fondo: '#141414', letra: '#f1bb00' },
+    { id: 'p25',  texto: '25%', linea2: 'OFF', codigo: 'SHIVOS25', peso: 10, fondo: '#141414', letra: '#f1bb00' },
+    { id: 'nada', texto: 'SEGUÍ', linea2: 'PARTICIPANDO', codigo: null, peso: 25, fondo: '#d4281c', letra: '#fff', chico: true }
+  ],
+  casilleros: ['p5','p10','p5','p25','p5','p15','p5','nada'] // orden visual en la ruleta (8 casilleros)
+};
+(function(){
+  var C = RULETA_CONFIG; if (!C.activa) return;
+  try {
+    var hoy = new Intl.DateTimeFormat('en-CA',{timeZone:'America/Argentina/Buenos_Aires',year:'numeric',month:'2-digit',day:'2-digit'}).format(new Date());
+    var preview = /[?&]ruleta=1/.test(location.search);
+    var dia = new Intl.DateTimeFormat('en-US',{timeZone:'America/Argentina/Buenos_Aires',weekday:'short'}).format(new Date());
+    var cerradaHoy = !preview && (hoy > C.hasta || C.diasSinRuleta.indexOf(dia) > -1);
+    var esBD = (hoy === '2026-11-28') || /[?&]beautiful=1/.test(location.search);
+    var $ = function(id){ return document.getElementById(id); };
+    var modal=$('rlModal'), fab=$('rlFab'), canvas=$('rlCanvas'), ctx=canvas.getContext('2d');
+    var N=C.casilleros.length, ang=360/N, giro=0, girando=false, KEY='shivosRuleta';
+    var byId={}; C.premios.forEach(function(p){ byId[p.id]=p; });
+    function dibujar(){
+      var W=canvas.width, R=W/2; ctx.clearRect(0,0,W,W);
+      for (var i=0;i<N;i++){
+        var p=byId[C.casilleros[i]], a0=(i*ang-90)*Math.PI/180, a1=((i+1)*ang-90)*Math.PI/180;
+        ctx.beginPath(); ctx.moveTo(R,R); ctx.arc(R,R,R,a0,a1); ctx.closePath(); ctx.fillStyle=p.fondo; ctx.fill();
+        ctx.strokeStyle='#000'; ctx.lineWidth=4; ctx.stroke();
+        ctx.save(); ctx.translate(R,R); ctx.rotate(((i+0.5)*ang-90)*Math.PI/180); ctx.fillStyle=p.letra; ctx.textAlign='right'; ctx.textBaseline='middle';
+        var x=R-30;
+        if (p.chico) { ctx.font='40px "Bebas Neue", sans-serif'; ctx.fillText(p.texto, x, -22); ctx.fillText(p.linea2, x, 22); }
+        else { ctx.font='92px "Bebas Neue", sans-serif'; ctx.fillText(p.texto, x, -16); ctx.font='38px "Bebas Neue", sans-serif'; ctx.fillText(p.linea2, x, 46); }
+        ctx.restore();
+      }
+      ctx.beginPath(); ctx.arc(R,R,70,0,Math.PI*2); ctx.fillStyle='#000'; ctx.fill(); ctx.lineWidth=8; ctx.strokeStyle='#f1bb00'; ctx.stroke();
+      ctx.fillStyle='#f1bb00'; ctx.font='46px HighVoltage, "Bebas Neue", sans-serif'; ctx.textAlign='center'; ctx.textBaseline='middle'; ctx.fillText("S",R,R+2);
+    }
+    function sortear(){
+      var tot=0; C.premios.forEach(function(p){ tot+=p.peso; }); var r=Math.random()*tot, acc=0, g=C.premios[0];
+      for (var i=0;i<C.premios.length;i++){ acc+=C.premios[i].peso; if (r<acc){ g=C.premios[i]; break; } }
+      var idx=[]; C.casilleros.forEach(function(id,k){ if (id===g.id) idx.push(k); });
+      return { premio:g, idx: idx[Math.floor(Math.random()*idx.length)] };
+    }
+    function mostrar(p){
+      $('rlPlay').style.display='none'; $('rlRes').classList.add('on');
+      var gano=!!p.codigo;
+      $('rlKick').textContent=gano?'Ganaste':'Esta vez no hubo suerte';
+      $('rlPremio').textContent=gano?(p.texto+' OFF'):'SEGUÍ PARTICIPANDO';
+      $('rlPremio').style.fontSize=gano?'':'clamp(34px, 9vw, 46px)';
+      $('rlCode').style.display=gano?'':'none'; $('rlCopy').style.display=gano?'':'none';
+      if (gano) $('rlCode').textContent=p.codigo;
+      $('rlOrder').href = gano ? (p.link || (C.tienda+'?coupon='+encodeURIComponent(p.codigo))) : C.tienda;
+      $('rlNote').textContent=gano?('Usá el código al pagar en la tienda. '+C.valido+'.'):'Seguinos en Instagram y TikTok (@shivosburger) para las próximas promos.';
+    }
+    function abrir(){ modal.classList.add('on'); document.documentElement.style.overflow='hidden'; }
+    function cerrar(){ modal.classList.remove('on'); document.documentElement.style.overflow=''; try{ sessionStorage.setItem(KEY+'Cerrada','1'); }catch(e){} refrescarFab(); }
+    var guardado=null; try{ guardado=JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){}
+        if (guardado && byId[guardado.id] && !preview) mostrar(byId[guardado.id]);
+    var VISTO=KEY+'Visto', SES=KEY+'Sesion';
+    function flag(st,k){ try{ return st.getItem(k)==='1'; }catch(e){ return false; } }
+    function refrescarFab(){
+      var tiene=guardado && byId[guardado.id] && byId[guardado.id].codigo;
+      var enSesion=flag(sessionStorage,SES);
+      if (cerradaHoy) { fab.classList.remove('on'); return; }
+      if (preview) { fab.textContent='GIRÁ Y GANÁ'; fab.classList.add('on'); return; }
+      if (tiene) { fab.textContent='MI CÓDIGO'; fab.classList.add('on'); }
+      else if (!guardado && enSesion) { fab.textContent='GIRÁ Y GANÁ'; fab.classList.add('on'); }
+      else fab.classList.remove('on');
+    }
+    $('rlSpin').addEventListener('click', function(){
+      if (girando) return; girando=true; this.disabled=true;
+      var s=sortear(), centro=(s.idx+0.5)*ang, jit=(Math.random()-0.5)*ang*0.6;
+      giro += 360*6 + ((360-centro-jit)%360 + 360)%360 - (giro%360);
+      canvas.style.transform='rotate('+giro+'deg)';
+      if (preview) window.__rlLast={idx:s.idx,rot:giro,ang:ang,id:s.premio.id};
+      var fin=false; function listo(){ if (fin) return; fin=true; girando=false;
+        if (!preview) { guardado={id:s.premio.id,t:Date.now()}; try{ localStorage.setItem(KEY,JSON.stringify(guardado)); }catch(e){} }
+        mostrar(s.premio); refrescarFab(); }
+      canvas.addEventListener('transitionend', listo, {once:true}); setTimeout(listo, 5600);
+    });
+    $('rlCopy').addEventListener('click', function(){
+      var t=$('rlCode').textContent, b=this;
+      function ok(){ b.textContent='¡COPIADO!'; setTimeout(function(){ b.textContent='COPIAR CÓDIGO'; },1800); }
+      if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok,function(){});
+      else { var ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); ok(); }catch(e){} document.body.removeChild(ta); }
+    });
+    $('rlClose').addEventListener('click', cerrar); fab.addEventListener('click', abrir);
+    modal.addEventListener('click', function(e){ if (e.target===modal) cerrar(); });
+    document.addEventListener('keydown', function(e){ if (e.key==='Escape' && modal.classList.contains('on')) cerrar(); });
+    var arrancar=function(){ dibujar(); refrescarFab();
+      if (preview) { abrir(); return; }
+      if (cerradaHoy) return;
+      // Solo la PRIMERA visita: sale sola una vez por dispositivo (no el sábado de Beautiful Day)
+      if (!guardado && !esBD && !flag(localStorage,VISTO)) setTimeout(function(){
+        try{ localStorage.setItem(VISTO,'1'); sessionStorage.setItem(SES,'1'); }catch(e){}
+        abrir(); refrescarFab(); }, C.demoraMs); };
+    if (document.fonts && document.fonts.load) { Promise.all([document.fonts.load('40px "Bebas Neue"'), document.fonts.load('40px HighVoltage')]).then(arrancar, arrancar); } else { arrancar(); }
   } catch(e) {}
 })();
 </script>
