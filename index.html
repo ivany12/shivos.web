@@ -2241,6 +2241,9 @@ footer.fx { background: #000 !important; border-top: 0 !important; padding: 0 !i
 @media(max-width:600px){.faq-section{padding:64px 16px}.faq-item summary{font-size:19px}}
 .fx-hr{display:block;margin-bottom:8px;line-height:1.35}.fx-hr b{display:block;color:#fff;font-weight:700}
 </style>
+<!-- Google Analytics 4 (propiedad menu.fu.do de Ivan). Mide visitas y los eventos de la ruleta. -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=G-G34B6CRZ4R"></script>
+<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','G-G34B6CRZ4R');</script>
 </head>
 <body>
 
@@ -2915,6 +2918,7 @@ var RULETA_CONFIG = {
     var cerradaHoy = !preview && (hoy > C.hasta || C.diasSinRuleta.indexOf(dia) > -1);
     var esBD = (hoy === '2026-11-28') || /[?&]beautiful=1/.test(location.search);
     var $ = function(id){ return document.getElementById(id); };
+    var track = function(n,p){ if (preview) return; try{ if (window.gtag) gtag('event',n,p||{}); }catch(e){} };
     var modal=$('rlModal'), fab=$('rlFab'), canvas=$('rlCanvas'), ctx=canvas.getContext('2d');
     var N=C.casilleros.length, ang=360/N, giro=0, girando=false, KEY='shivosRuleta';
     var byId={}; C.premios.forEach(function(p){ byId[p.id]=p; });
@@ -2950,7 +2954,7 @@ var RULETA_CONFIG = {
       $('rlOrder').href = gano ? (p.link || (C.tienda+'?coupon='+encodeURIComponent(p.codigo))) : C.tienda;
       $('rlNote').textContent=gano?('Usá el código al pagar en la tienda. '+C.valido+'.'):'Seguinos en Instagram y TikTok (@shivosburger) para las próximas promos.';
     }
-    function abrir(){ modal.classList.add('on'); document.documentElement.style.overflow='hidden'; }
+    function abrir(origen){ modal.classList.add('on'); document.documentElement.style.overflow='hidden'; track('ruleta_abre',{origen:origen||'boton',ya_giro:!!guardado}); }
     function cerrar(){ modal.classList.remove('on'); document.documentElement.style.overflow=''; try{ sessionStorage.setItem(KEY+'Cerrada','1'); }catch(e){} refrescarFab(); }
     var guardado=null; try{ guardado=JSON.parse(localStorage.getItem(KEY)||'null'); }catch(e){}
         if (guardado && byId[guardado.id] && !preview) mostrar(byId[guardado.id]);
@@ -2973,16 +2977,17 @@ var RULETA_CONFIG = {
       if (preview) window.__rlLast={idx:s.idx,rot:giro,ang:ang,id:s.premio.id};
       var fin=false; function listo(){ if (fin) return; fin=true; girando=false;
         if (!preview) { guardado={id:s.premio.id,t:Date.now()}; try{ localStorage.setItem(KEY,JSON.stringify(guardado)); }catch(e){} }
-        mostrar(s.premio); refrescarFab(); }
+        track('ruleta_giro',{premio:s.premio.codigo||'segui_participando',ganado:!!s.premio.codigo}); mostrar(s.premio); refrescarFab(); }
       canvas.addEventListener('transitionend', listo, {once:true}); setTimeout(listo, 5600);
     });
+    $('rlOrder').addEventListener('click', function(){ var t=$('rlCode').style.display==='none'?'':$('rlCode').textContent; track('ruleta_pedir',{codigo:t||'sin_codigo'}); });
     $('rlCopy').addEventListener('click', function(){
-      var t=$('rlCode').textContent, b=this;
+      var t=$('rlCode').textContent, b=this; track('ruleta_copiar',{codigo:t});
       function ok(){ b.textContent='¡COPIADO!'; setTimeout(function(){ b.textContent='COPIAR CÓDIGO'; },1800); }
       if (navigator.clipboard && navigator.clipboard.writeText) navigator.clipboard.writeText(t).then(ok,function(){});
       else { var ta=document.createElement('textarea'); ta.value=t; document.body.appendChild(ta); ta.select(); try{ document.execCommand('copy'); ok(); }catch(e){} document.body.removeChild(ta); }
     });
-    $('rlClose').addEventListener('click', cerrar); fab.addEventListener('click', abrir);
+    $('rlClose').addEventListener('click', cerrar); fab.addEventListener('click', function(){ abrir('boton'); });
     modal.addEventListener('click', function(e){ if (e.target===modal) cerrar(); });
     document.addEventListener('keydown', function(e){ if (e.key==='Escape' && modal.classList.contains('on')) cerrar(); });
     var arrancar=function(){ dibujar(); refrescarFab();
@@ -2991,7 +2996,7 @@ var RULETA_CONFIG = {
       // Solo la PRIMERA visita: sale sola una vez por dispositivo (no el sábado de Beautiful Day)
       if (!guardado && !esBD && !flag(localStorage,VISTO)) setTimeout(function(){
         try{ localStorage.setItem(VISTO,'1'); sessionStorage.setItem(SES,'1'); }catch(e){}
-        abrir(); refrescarFab(); }, C.demoraMs); };
+        abrir('automatico'); refrescarFab(); }, C.demoraMs); };
     if (document.fonts && document.fonts.load) { Promise.all([document.fonts.load('40px "Bebas Neue"'), document.fonts.load('40px HighVoltage')]).then(arrancar, arrancar); } else { arrancar(); }
   } catch(e) {}
 })();
